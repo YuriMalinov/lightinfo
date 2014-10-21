@@ -2,8 +2,9 @@ package system
 
 import java.sql.Timestamp
 
+import models.Page
 import org.joda.time.DateTime
-import org.squeryl.PrimitiveTypeMode
+import org.squeryl.{Query, PrimitiveTypeMode}
 import org.squeryl.dsl._
 
 object DbDef extends PrimitiveTypeMode {
@@ -26,5 +27,8 @@ object DbDef extends PrimitiveTypeMode {
   implicit def jodaTimeToTE(s: DateTime): TypedExpression[DateTime, TTimestamp] = jodaTimeTEF.create(s)
 
   implicit def optionJodaTimeToTE(s: Option[DateTime]): TypedExpression[Option[DateTime], TOptionTimestamp] = optionJodaTimeTEF.create(s)
+
+  def selectPage[T](q: Query[T], page: Int, pageSize: Int) =
+    Page(q.page(page * pageSize, pageSize).toSeq, page, pageSize, from(q)(l ⇒ compute(count)).head.measures)
 }
 

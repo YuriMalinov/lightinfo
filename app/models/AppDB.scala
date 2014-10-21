@@ -1,8 +1,7 @@
 package models
 
 import org.joda.time.DateTime
-import org.squeryl.{PrimitiveTypeMode, Schema, KeyedEntity}
-
+import org.squeryl.{KeyedEntity, Schema}
 import system.DbDef._
 
 
@@ -10,12 +9,12 @@ class Entity extends KeyedEntity[Int] {
   val id: Int = 0
 }
 
-case class Project(var name: String, var description: String) extends Entity
+case class Project(var name: String, var code: String, var description: String) extends Entity
 
-case class Info(var projectId: Int, var parentInfoId: Option[Int], var name: String, var text: String) extends Entity {
+case class Info(var projectId: Int, var parentInfoId: Option[Int], var name: String, var keywords: String, var text: String) extends Entity {
   var lastModified = DateTime.now()
 
-  def this() = this(0, Some(0), "", "")
+  def this() = this(0, Some(0), "", "", "")
 
   lazy val children = AppDB.infoToParent.left(this)
   lazy val parent = AppDB.infoToParent.right(this)
@@ -25,7 +24,7 @@ case class Info(var projectId: Int, var parentInfoId: Option[Int], var name: Str
 
 case class InfoImage(infoId: Int, data: Array[Byte]) extends Entity
 
-case class InfoRevision(infoId: Int, projectId: Int, parentInfoId: Option[Int], name: String, text: String) extends Entity {
+case class InfoRevision(infoId: Int, projectId: Int, parentInfoId: Option[Int], name: String, keywords: String, text: String) extends Entity {
   val revisionDate = DateTime.now()
 }
 

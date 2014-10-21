@@ -1,0 +1,69 @@
+@(projectsPage: Page[Project])(implicit request: CommonRequest[_])
+
+@main() {
+    <div class="page-header">
+        <h1 id="tables">Проекты
+            <a href="@routes.ProjectsController.create()" class="btn btn-primary btn-sm">Добавить проект</a>
+        </h1>
+    </div>
+
+    @if(projectsPage.totalCount == 0) {
+        <div class="alert alert-info">
+            <h4>Нет проектов</h4>
+            <p>Ещё не создали ни одного проекта.</p>
+            <p><a href="@routes.ProjectsController.create()" class="btn btn-primary btn-sm">Добавить проект</a></p>
+        </div>
+    } else {
+        <table class="table table-striped table-hover">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Название</th>
+                    <th>Код</th>
+                    <th>Описание</th>
+                </tr>
+            </thead>
+            <tbody>
+            @projectsPage.list.map { project =>
+                <tr>
+                    <td>@project.id</td>
+                    <td><a href="@routes.ProjectsController.edit(project.id)">@project.name</a></td>
+                    <td>@project.code</td>
+                    <td>@project.description</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+
+
+        @defining((projectsPage.page, (projectsPage.totalCount.toDouble / projectsPage.pageSize).ceil.toInt - 1)) { case (page, lastPage) =>
+        <ul class="pagination">
+            @if(page > 0) {
+                @pageLink(page - 1, false)
+            }
+
+            @Range(0, lastPage + 1).map { p =>
+                @pageLink(p, p == page)
+            }
+            @if(page < lastPage) {
+                @pageLink(page + 1, false)
+            }
+        </ul>
+        }
+        <ul class="pagination">
+            <li><a>На странице:</a></li>
+            @List(100, 500, 1000).map { pageSize =>
+                <li @if(pageSize == projectsPage.pageSize) {
+                    class="active" }><a href="@Url('pageSize → pageSize)">@pageSize</a></li>
+            }
+        </ul>
+    }
+}
+@pageLink(page: Int, active: Boolean) = {
+    <li @if(active) {
+        class="active"}>
+        <a href="@Url('page -> page)">@{
+            page + 1
+        }</a>
+    </li>
+}

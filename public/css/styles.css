@@ -1,0 +1,8 @@
+.required label {
+    font-weight: bold;
+}
+
+.required label:after {
+    content: " *";
+    color: red;
+}
