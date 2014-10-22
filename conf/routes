@@ -14,5 +14,12 @@ GET         /projects/edit               controllers.ProjectsController.edit(id:
 POST        /projects/edit-save          controllers.ProjectsController.editSave(id: Int)
 GET         /projects/delete             controllers.ProjectsController.delete(id: Int)
 
+
+GET         /info/create                 controllers.InfoController.create()
+POST        /info/create-save            controllers.InfoController.createSave()
+GET         /info/edit                   controllers.InfoController.edit(id: Int)
+POST        /info/edit-save              controllers.InfoController.editSave(id: Int)
+
+
 # Map static resources from the /public folder to the /assets URL path
 GET         /assets/*file                controllers.Assets.at(path="/public", file)

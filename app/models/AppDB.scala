@@ -11,7 +11,7 @@ class Entity extends KeyedEntity[Int] {
 
 case class Project(var name: String, var code: String, var description: String) extends Entity
 
-case class Info(var projectId: Int, var parentInfoId: Option[Int], var name: String, var keywords: String, var text: String) extends Entity {
+case class Info(var projectId: Int, var parentInfoId: Option[Int], var name: String, var keywords: String, var text: String, var childrenCount: Int = 0) extends Entity {
   var lastModified = DateTime.now()
 
   def this() = this(0, Some(0), "", "", "")

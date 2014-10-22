@@ -1,9 +1,14 @@
+import controllers.{ApplicationController, NotFoundEx}
 import org.squeryl.adapters.H2Adapter
 import org.squeryl.internals.DatabaseAdapter
 import org.squeryl.{Session, SessionFactory}
+import play.api.mvc.{SimpleResult, RequestHeader}
 import play.api.{Application, GlobalSettings}
 import play.api.db.DB
+import play.mvc.Http.Status
 import system.MyPostgreSqlAdapter
+
+import scala.concurrent.Future
 
 object Global extends GlobalSettings {
 
@@ -17,4 +22,10 @@ object Global extends GlobalSettings {
 
   def getSession(adapter:DatabaseAdapter, app: Application) = Session.create(DB.getConnection()(app), adapter)
 
+  override def onError(request: RequestHeader, ex: Throwable): Future[SimpleResult] = {
+    ex.getCause match {
+      case NotFoundEx(message) ⇒ Future.successful(ApplicationController.NotFound(message))
+      case e: Throwable ⇒ super.onError(request, ex)
+    }
+  }
 }

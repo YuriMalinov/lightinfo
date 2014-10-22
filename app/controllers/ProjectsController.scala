@@ -1,11 +1,10 @@
 package controllers
 
-import models.{Project, AppDB}
-import play.api.mvc.Results.Status
-import play.api.mvc.{Action, AnyContent, Call, Controller}
-import system.DbDef._
-import play.api.data._
+import models.{AppDB, Project}
 import play.api.data.Forms._
+import play.api.data._
+import play.api.mvc.{Call, Controller}
+import system.DbDef._
 
 object ProjectsController extends Controller with CreateUpdateHandler {
   val projectForm = Form(
