@@ -1,4 +1,9 @@
-@(title: String = "LightInfo - simple way to write and read info", endBody: Html = null)(content: Html)(implicit request: CommonRequest[_])
+@(
+        title: String = "LightInfo - simple way to write and read info",
+        endBody: Html = null,
+        fluid: Boolean = false,
+        head: Html = null
+        )(content: Html)(implicit request: CommonRequest[_])
 
 @import play.api.templates.Html
 <!DOCTYPE html>
@@ -13,6 +18,7 @@
         <script type="text/javascript" src="@routes.Assets.at("js/bootstrap.js")"></script>
         <script type="text/javascript" src="@routes.Assets.at("js/angular.js")"></script>
         <script type="text/javascript" src="@routes.Assets.at("javascript/main.js")"></script>
+        @if(head != null) { @head }
     </head>
     <body>
         <div class="navbar navbar-inverse">
@@ -58,7 +64,7 @@
                 </ul>
             </div>
         </div>
-        <div class="container">
+        <div class="@if(fluid) {container-fluid} else {container}">
             @request.flash.data.map { case (key, value) =>
             <div class="alert alert-dismissable alert-@value">
                 <button type="button" class="close" data-dismiss="alert">×</button>

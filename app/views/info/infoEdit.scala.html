@@ -1,24 +1,65 @@
 @(form: Form[InfoData], info: Info)(implicit request: CommonRequest[_])
+@import play.api.libs.json.Json
 @import views.html.helper.FieldConstructor
 @implicitFieldConstructor = @{
     FieldConstructor(twitterBootstrapInput.f)
 }
+@implicitWriteInfo = @{
+    Json.writes[Info]
+}
 
-@main() {
+@head() = {
+    <link rel="stylesheet" href="@routes.Assets.at("css/info/info-edit.css")">
+}
+
+@main(fluid = true, head = head()) {
+    <script type="text/javascript" src="@routes.Assets.at("js/marked.js")"></script>
+    <script type="text/javascript" src="@routes.Assets.at("js/paste.js")"></script>
+    <script type="text/javascript" src="@routes.Assets.at("javascript/info/info-edit.js")"></script>
+    <style>@@ import url ( )</style>
     <div class="page-header">
-        <h1 id="tables">@if(info.id == 0) { Новая страничка } else {@info.name}</h1>
+        <h1>@if(info.id == 0) { Новая страничка } else {
+            @info.name
+        }</h1>
     </div>
 
-    <div class="well">
+    <script type="text/javascript">
+    window.angularData = { } ;
+    window.angularData.info = @Html(Json.toJson(info).toString());
+    window.angularData.infoId = @Html(info.id.toString);
+    </script>
+
+    <div ng-app="InfoEdit" ng-controller="InfoEditController as c">
     @helper.form(
         if(info.id != 0) routes.InfoController.editSave(info.id)
         else routes.InfoController.createSave(), 'class → "form-horizontal"
     ) {
-        <fieldset>
-            @helper.inputText(form("name"), 'class → "form-control", '_label → "Название")
-            @helper.inputText(form("keywords"), 'class → "form-control", '_label → "Ключевые слова")
-            @helper.inputText(form("parentInfoId"))
-            @helper.textarea(form("text"), 'class → "form-control", 'rows → 5, '_label → "Текст")
+        <div class="panel panel-default">
+            <div class="panel-heading">Общая информация
+                <a href="#" ng-click="c.showCommon = true; false" ng-show="!c.showCommon">Показать</a>
+                <a href="#" ng-click="c.showCommon = false; false" ng-show="c.showCommon">Скрыть</a>
+            </div>
+            <div class="panel-body" ng-show="c.showCommon">
+                <fieldset>
+                    @helper.inputText(form("name"), 'class → "form-control", '_label → "Название")
+                    @helper.inputText(form("keywords"), 'class → "form-control", '_label → "Ключевые слова")
+                    @helper.inputText(form("parentInfoId"), '_label → "Папка")
+                </fieldset>
+            </div>
+        </div>
+        <div class="well">
+            @defining(form("text")) { text =>
+                <div class="form-group">
+                    <div class="col-lg-6">
+                        <textarea id="@text.name" name="@text.name" class="form-control" rows="30">@text.value.getOrElse("")</textarea>
+                    </div>
+                    <div class="panel panel-default col-lg-6">
+                        <div class="panel-body" id="preview">
+                            Basic panel
+                        </div>
+                    </div>
+                </div>
+            }
             <div class="form-group">
                 <div class="col-lg-10 col-lg-offset-2">
                     <button type="submit" class="btn btn-primary">Сохранить</button>
@@ -26,7 +67,10 @@
                 </div>
             </div>
         </fieldset>
-        <a class="btn btn-danger hidden" onclick="return confirm ( 'Точно? Пути назад нет' )">Шняга, чтобы IDEA успокоилась и не светила всё красным.</a>
+        </div>
+        <canvas id="cc" width="200" height="200"></canvas>
+        <a class="btn btn-danger hidden" onclick="return confirm ( 'Точно? Пути назад нет' )">
+            Шняга, чтобы IDEA успокоилась и не светила всё красным.</a>
     }
     </div>
 }
