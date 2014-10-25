@@ -22,7 +22,9 @@ case class Info(var projectId: Int, var parentInfoId: Option[Int], var name: Str
   lazy val images = AppDB.infoToInfoImage.left(this)
 }
 
-case class InfoImage(infoId: Int, data: Array[Byte]) extends Entity
+case class InfoImage(infoId: Int, data: Array[Byte], contentType: String) extends KeyedEntity[Long] {
+  val id: Long = (Math.random() * Long.MaxValue).toLong
+}
 
 case class InfoRevision(infoId: Int, projectId: Int, parentInfoId: Option[Int], name: String, keywords: String, text: String) extends Entity {
   val revisionDate = DateTime.now()
@@ -35,6 +37,7 @@ object AppDB extends Schema {
   val infoRevisionTable = table[InfoRevision]
 
   on(infoImageTable)(t => declare(
+    t.id is primaryKey,
     t.infoId is indexed
   ))
   on(infoRevisionTable)(t => declare(

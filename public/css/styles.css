@@ -6,3 +6,10 @@
     content: " *";
     color: red;
 }
+
+.dev-section {
+    background-color: #ffffdd;
+    border-top: 1px dashed #ddddaa;
+    border-bottom: 1px dashed #ddddaa;
+    padding: 0 20px 10px;
+}

@@ -1,10 +1,14 @@
 package controllers
 
-import models.{AppDB, Info}
+import models.{InfoImage, AppDB, Info}
 import play.api.data.Form
 import play.api.data.Forms._
+import play.api.http.{ContentTypeOf, Writeable}
+import play.api.libs.Files
 import play.api.mvc.{Action, AnyContent, Controller}
 import system.DbDef._
+
+import scalax.file.Path
 
 case class InfoData(parentInfoId: Int, name: String, keywords: String, text: String)
 
@@ -54,6 +58,30 @@ object InfoController extends Controller {
       Redirect(routes.InfoController.edit(saved.id)).flashing("Успешно сохранено" → "success")
     } else {
       Ok(views.html.info.infoEdit(form, info))
+    }
+  }
+
+  def uploadImage(infoId: Int) = Action { implicit request ⇒
+    val data = request.body.asMultipartFormData.getOrElse(throw BadRequestEx("Request should be multipart/form-data"))
+
+    val file = data.file("data").getOrElse(throw BadRequestEx("data field not found"))
+
+    // TODO: Sometime in future it'll be good to check if image is image and guess it's content-type through some clever lib
+    val image = new InfoImage(infoId, Path(file.ref.file).byteArray, file.contentType.getOrElse("image/png"))
+
+    val id = inTransaction {
+      AppDB.infoImageTable.insert(image).id
+    }
+
+    Ok(routes.InfoController.getImage(image.infoId, image.id).url)
+  }
+
+  def getImage(infoId: Int, imageId: Long) = Action {
+    inTransaction {
+      from(AppDB.infoImageTable) { i ⇒ where(i.infoId === infoId and i.id === imageId) select i}.headOption match {
+        case Some(image) ⇒ Ok(image)(Writeable((i: InfoImage) ⇒ i.data)(ContentTypeOf(Some(image.contentType))))
+        case None ⇒ BadRequest(s"Image with id $imageId for info $infoId not found.")
+      }
     }
   }
 }

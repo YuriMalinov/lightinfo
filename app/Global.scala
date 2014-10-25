@@ -1,4 +1,4 @@
-import controllers.{ApplicationController, NotFoundEx}
+import controllers.{BadRequestEx, ApplicationController, NotFoundEx}
 import org.squeryl.adapters.H2Adapter
 import org.squeryl.internals.DatabaseAdapter
 import org.squeryl.{Session, SessionFactory}
@@ -25,6 +25,7 @@ object Global extends GlobalSettings {
   override def onError(request: RequestHeader, ex: Throwable): Future[SimpleResult] = {
     ex.getCause match {
       case NotFoundEx(message) ⇒ Future.successful(ApplicationController.NotFound(message))
+      case BadRequestEx(message) ⇒ Future.successful(ApplicationController.BadRequest(message))
       case e: Throwable ⇒ super.onError(request, ex)
     }
   }

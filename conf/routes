@@ -2,24 +2,26 @@
 # This file defines all application routes (Higher priority routes first)
 # ~~~~
 
-GET         /                            controllers.ApplicationController.index
+GET         /                              controllers.ApplicationController.index
 
-GET         /ddl                         controllers.ApplicationController.ddl
-GET         /select-project              controllers.ApplicationController.selectProject(projectId: Int)
+GET         /ddl                           controllers.ApplicationController.ddl
+GET         /select-project                controllers.ApplicationController.selectProject(projectId: Int)
 
-GET         /projects                    controllers.ProjectsController.projects(page: Int ?= 0, pageSize: Int ?= 100)
-GET         /projects/create             controllers.ProjectsController.create()
-POST        /projects/create-save        controllers.ProjectsController.createSave()
-GET         /projects/edit               controllers.ProjectsController.edit(id: Int)
-POST        /projects/edit-save          controllers.ProjectsController.editSave(id: Int)
-GET         /projects/delete             controllers.ProjectsController.delete(id: Int)
+GET         /projects                      controllers.ProjectsController.projects(page: Int ?= 0, pageSize: Int ?= 100)
+GET         /projects/create               controllers.ProjectsController.create()
+POST        /projects/create-save          controllers.ProjectsController.createSave()
+GET         /projects/edit                 controllers.ProjectsController.edit(id: Int)
+POST        /projects/edit-save            controllers.ProjectsController.editSave(id: Int)
+GET         /projects/delete               controllers.ProjectsController.delete(id: Int)
 
 
-GET         /info/create                 controllers.InfoController.create()
-POST        /info/create-save            controllers.InfoController.createSave()
-GET         /info/edit                   controllers.InfoController.edit(id: Int)
-POST        /info/edit-save              controllers.InfoController.editSave(id: Int)
+GET         /info/create                   controllers.InfoController.create()
+POST        /info/create-save              controllers.InfoController.createSave()
+GET         /info/edit                     controllers.InfoController.edit(id: Int)
+POST        /info/edit-save                controllers.InfoController.editSave(id: Int)
+POST        /info/upload-image             controllers.InfoController.uploadImage(infoId: Int)
+GET        /image/:infoId/:imageId        controllers.InfoController.getImage(infoId: Int, imageId: Long)
 
 
 # Map static resources from the /public folder to the /assets URL path
-GET         /assets/*file                controllers.Assets.at(path="/public", file)
+GET         /assets/*file                  controllers.Assets.at(path="/public", file)
