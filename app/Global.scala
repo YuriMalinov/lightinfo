@@ -1,6 +1,7 @@
 import controllers.{BadRequestEx, ApplicationController, NotFoundEx}
 import org.squeryl.adapters.H2Adapter
 import org.squeryl.internals.DatabaseAdapter
+import org.squeryl.logging.{StatementInvocationEvent, StatisticsListener}
 import org.squeryl.{Session, SessionFactory}
 import play.api.mvc.{SimpleResult, RequestHeader}
 import play.api.{Application, GlobalSettings}
@@ -20,7 +21,11 @@ object Global extends GlobalSettings {
     }
   }
 
-  def getSession(adapter:DatabaseAdapter, app: Application) = Session.create(DB.getConnection()(app), adapter)
+  def getSession(adapter:DatabaseAdapter, app: Application) = {
+    val session = Session.create(DB.getConnection()(app), adapter)
+    session.setLogger(println)
+    session
+  }
 
   override def onError(request: RequestHeader, ex: Throwable): Future[SimpleResult] = {
     ex.getCause match {

@@ -2,7 +2,8 @@
         title: String = "LightInfo - simple way to write and read info",
         endBody: Html = null,
         fluid: Boolean = false,
-        head: Html = null
+        head: Html = null,
+        displayFlash: Boolean = true
         )(content: Html)(implicit request: CommonRequest[_])
 
 @import play.api.templates.Html
@@ -40,8 +41,10 @@
                             @request.commonData.projects.map { project =>
                                 <li><a href="@routes.ApplicationController.selectProject(project.id)">@project.name</a></li>
                             }
-                            <li class="divider"></li>
-                            <li><a href="@routes.ProjectsController.projects()"><i class="fa fa-plus-circle"></i> &nbsp;Управление проектами</a></li>
+                            @if(request.user.isDefined) {
+                                <li class="divider"></li>
+                                <li><a href="@routes.ProjectsController.projects()"><i class="fa fa-plus-circle"></i> &nbsp;Управление проектами</a></li>
+                            }
                         </ul>
                     </li>
                     <li></li>
@@ -50,26 +53,30 @@
                     <input type="text" class="form-control col-lg-8" placeholder="Search">
                 </form>
                 <ul class="nav navbar-nav navbar-right">
-                    <li><a href="#">Link</a></li>
-                    <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Dropdown <b class="caret"></b></a>
-                        <ul class="dropdown-menu">
-                            <li><a href="#">Action</a></li>
-                            <li><a href="#">Another action</a></li>
-                            <li><a href="#">Something else here</a></li>
-                            <li class="divider"></li>
-                            <li><a href="#">Separated link</a></li>
-                        </ul>
-                    </li>
+                    @request.user match {
+                        case None => {
+                            <li><a href="@securesocial.controllers.routes.LoginPage.login()">Войти <span class="label label-warning" title="Без авторизации доступна только общедоступная информация">только публичные</span></a></li>
+                        }
+                        case Some(u) => {
+                            <li class="dropdown">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">@u.fullName <b class="caret"></b></a>
+                                <ul class="dropdown-menu">
+                                    <li><a href="@securesocial.controllers.routes.LoginPage.logout()">Выйти нафиг</a></li>
+                                </ul>
+                            </li>
+                        }
+                    }
                 </ul>
             </div>
         </div>
         <div class="@if(fluid) {container-fluid} else {container}">
-            @request.flash.data.map { case (key, value) =>
-            <div class="alert alert-dismissable alert-@value">
-                <button type="button" class="close" data-dismiss="alert">×</button>
-                @key
-            </div>
+            @if(displayFlash) {
+                @request.flash.data.map { case (key, value) =>
+                <div class="alert alert-dismissable alert-@value">
+                    <button type="button" class="close" data-dismiss="alert">×</button>
+                    @key
+                </div>
+                }
             }
 
             @content

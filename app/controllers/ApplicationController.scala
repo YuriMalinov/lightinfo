@@ -35,10 +35,12 @@ object ApplicationController extends Controller {
     }
   }
 
-  def ddl = CommonAction { implicit request ⇒
-    val sql = new ArrayBuffer[String]()
-    AppDB.printDdl(sql += _)
-    Ok(views.html.ddl(sql.mkString("\n")))
+  def ddl = Action { implicit request ⇒
+    inTransaction {
+      val sql = new ArrayBuffer[String]()
+      AppDB.printDdl(sql += _)
+      Ok(views.html.ddl(sql.mkString("\n")))
+    }
   }
 }
 

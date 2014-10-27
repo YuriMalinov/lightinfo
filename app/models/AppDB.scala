@@ -2,6 +2,8 @@ package models
 
 import org.joda.time.DateTime
 import org.squeryl.{KeyedEntity, Schema}
+import securesocial.core._
+import securesocial.core.providers.Token
 import system.DbDef._
 
 
@@ -30,6 +32,39 @@ case class InfoRevision(infoId: Int, projectId: Int, parentInfoId: Option[Int], 
   val revisionDate = DateTime.now()
 }
 
+case class User(override val id: Int, var providerId: String, var providerUserId: String, var email: Option[String],
+                var firstName: String, var lastName: String, var avatarUrl: Option[String],
+                var hasher: Option[String], var password: Option[String], var salt: Option[String]) extends Entity with Identity {
+
+  override def fullName = firstName + " " + lastName
+
+  override def identityId = IdentityId(providerUserId, providerId)
+
+  override def oAuth1Info = None
+
+  override def oAuth2Info = None
+
+  override def passwordInfo = hasher match {
+    case None ⇒ None
+    case Some(hash) ⇒ Some(PasswordInfo(hash, password.get, salt))
+  }
+
+  override def authMethod = AuthenticationMethod.UserPassword
+}
+
+class AuthenticatorHolder(auth: Authenticator) extends KeyedEntity[String] {
+  def this() = this(Authenticator("", IdentityId("", ""), DateTime.now(), DateTime.now(), DateTime.now()))
+
+  val id = auth.id
+  val creationDate = auth.creationDate
+  val lastUsed = auth.lastUsed
+  val expirationDate = auth.expirationDate
+  val providerId = auth.identityId.providerId
+  val providerUserId = auth.identityId.userId
+
+  def toAuthenticator = Authenticator(id, IdentityId(providerUserId, providerId), creationDate, lastUsed, expirationDate)
+}
+
 object AppDB extends Schema {
   val projectTable = table[Project]
   val infoTable = table[Info]
@@ -48,6 +83,20 @@ object AppDB extends Schema {
   val projectToInfo = oneToManyRelation(projectTable, infoTable) via { (project, info) => info.projectId === project.id}
   val infoToParent = oneToManyRelation(infoTable, infoTable) via { (parent, info) => info.parentInfoId === parent.id}
   val infoToRevisions = oneToManyRelation(infoTable, infoRevisionTable) via { (info, rev) => rev.infoId === info.id}
+
+
+  // SecureSocial & company
+  val userTable = table[User]("app_user")
+  on(userTable)(t ⇒ declare(
+    columns(t.providerId, t.providerUserId) are unique
+  ))
+
+  val tokenTable = table[Token]
+  on(tokenTable)(t ⇒ declare(
+    t.uuid is primaryKey
+  ))
+
+  val authenticatorTable = table[AuthenticatorHolder]
 
   override def defaultLengthOfString: Int = -1
 

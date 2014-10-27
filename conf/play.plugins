@@ -1,0 +1,11 @@
+1500:com.typesafe.plugin.CommonsMailerPlugin
+9994:system.SecureSocialAuthenticatorStore
+9995:securesocial.core.DefaultIdGenerator
+9996:securesocial.core.providers.utils.DefaultPasswordValidator
+9998:system.LiUserService
+9999:system.SecureSocialTemplatesPlugin
+10000:securesocial.core.providers.utils.BCryptPasswordHasher
+#10001:securesocial.core.providers.FacebookProvider
+#10002:securesocial.core.providers.GoogleProvider
+10004:securesocial.core.providers.UsernamePasswordProvider
+#10008:securesocial.core.providers.VkProvider
