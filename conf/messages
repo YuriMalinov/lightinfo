@@ -1,0 +1,3 @@
+ProjectType.Open = Open: any one could view project's public infos
+ProjectType.Private = Private: only members of project have access to it's infos
+ProjectType.Protected = Protected: only authorized persons have access to it's infos

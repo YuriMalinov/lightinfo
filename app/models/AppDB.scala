@@ -5,15 +5,26 @@ import org.squeryl.{KeyedEntity, Schema}
 import securesocial.core._
 import securesocial.core.providers.Token
 import system.DbDef._
+import system.EnumerationMapping
 
 
 class Entity extends KeyedEntity[Int] {
   val id: Int = 0
 }
 
-case class Project(var name: String, var code: String, var description: String) extends Entity
+object ProjectType extends Enumeration {
+  val Public = Value(1, "Open")
+  val Protected = Value(2, "Protected")
+  val Private = Value(3, "Private")
+}
 
-case class Info(var projectId: Int, var parentInfoId: Option[Int], var name: String, var keywords: String, var text: String, var childrenCount: Int = 0) extends Entity {
+object ProjectTypeMapping extends EnumerationMapping(ProjectType)
+
+case class Project(var name: String, var code: String, var description: String, var projectType: ProjectType.Value, var allowRequestForAccess: Boolean) extends Entity {
+  def this() = this("", "", "", ProjectType.Public, true)
+}
+
+case class Info(var projectId: Int, var parentInfoId: Option[Int], var name: String, var keywords: String, var text: String, var childrenCount: Int = 0, var isPublic: Boolean = true) extends Entity {
   var lastModified = DateTime.now()
 
   def this() = this(0, Some(0), "", "", "")
@@ -50,6 +61,17 @@ case class User(override val id: Int, var providerId: String, var providerUserId
   }
 
   override def authMethod = AuthenticationMethod.UserPassword
+}
+
+object UserStatus extends Enumeration {
+  val Request = Value(1, "Request")
+  val Active = Value(2, "Active")
+  val Admin = Value(3, "Admin")
+  val Blocked = Value(4, "Blocked")
+}
+
+case class UserInProject(userId: Int, projectId: Int, userStatus: UserStatus.Value) extends Entity {
+  def this() = this(0, 0, UserStatus.Request)
 }
 
 class AuthenticatorHolder(auth: Authenticator) extends KeyedEntity[String] {

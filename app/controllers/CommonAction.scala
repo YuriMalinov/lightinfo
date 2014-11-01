@@ -36,4 +36,24 @@ object CommonAction extends ActionBuilder[CommonRequest] {
       block(request)
     }
   }
+
+  def apply(checkUser: Option[User] ⇒ Option[String], block: CommonRequest[AnyContent] ⇒ Result): Action[AnyContent] = apply { request ⇒
+    checkUser(request.user) match {
+      case Some(error) ⇒ ApplicationController.Forbidden(error)
+      case None ⇒ block(request)
+    }
+  }
+
+  def apply(checkUser: User ⇒ Option[String], requireUser: Boolean, block: CommonRequest[AnyContent] ⇒ Result): Action[AnyContent] = apply { request ⇒
+    if (!requireUser) {
+      block(request)
+    } else if (request.user.isEmpty) {
+      ApplicationController.Forbidden("Authorization required")
+    } else {
+      checkUser(request.user.get) match {
+        case Some(error) ⇒ ApplicationController.Forbidden(error)
+        case None ⇒ block(request)
+      }
+    }
+  }
 }

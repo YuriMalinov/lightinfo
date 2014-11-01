@@ -17,6 +17,8 @@
         <fieldset>
         @helper.inputText(form("name"), 'class → "form-control", '_label → "Название")
         @helper.inputText(form("code"), 'class → "form-control", '_label → "Код проекта", '_help → "Будет использоваться в урлах к проекту. Менять с большой осторожностью.")
+        @helper.select(form("projectType"), ProjectType.values.map { x ⇒ (x.toString, Messages(s"ProjectType.${x.toString}")) }.toSeq, 'class → "form-control", '_label → "Код проекта", '_help → "Будет использоваться в урлах к проекту. Менять с большой осторожностью.")
+        @helper.checkbox(form("allowRequestForAccess"), '_class → "form-control", '_label → "Запросы", '_help → "Разрешать запросы пользователей для получения доступа к проекту")
         @helper.textarea(form("description"), 'class → "form-control", 'rows → 5, '_label → "Описание")
             <div class="form-group">
                 <div class="col-lg-10 col-lg-offset-2">

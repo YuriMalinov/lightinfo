@@ -1,6 +1,6 @@
 package controllers
 
-import models.{InfoImage, AppDB, Info}
+import models.{ProjectType, InfoImage, AppDB, Info}
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.http.{ContentTypeOf, Writeable}
@@ -35,7 +35,7 @@ object InfoController extends Controller {
       case Some(infoId) ⇒ AppDB.infoTable.lookup(infoId).getOrElse(throw NotFoundEx(s"Can't find info with id = $infoId"))
       case None ⇒ Info(
         projectId = request.commonData.currentProject.getOrElse(throw NotFoundEx("Current project is not set. Go to main page.")).id,
-        None, "", "", "", 0
+        None, "", "", "", 0, true
       )
     }
 
