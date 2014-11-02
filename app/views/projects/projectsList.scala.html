@@ -1,4 +1,4 @@
-@(projectsPage: Page[Project])(implicit request: CommonRequest[_])
+@(projectsPage: Page[Project], userData: Map[Int, Seq[(UserStatus.Value, Long)]])(implicit request: CommonRequest[_])
 
 @main() {
     <div class="page-header">
@@ -9,8 +9,8 @@
 
     @if(projectsPage.totalCount == 0) {
         <div class="alert alert-info">
-            <h4>Нет проектов</h4>
-            <p>Ещё не создали ни одного проекта.</p>
+            <h4>Нет доступных проектов</h4>
+            <p>Ещё не создали ни одного проекта или ни один проект не доступен.</p>
             <p><a href="@routes.ProjectsController.create()" class="btn btn-primary btn-sm">Добавить проект</a></p>
         </div>
     } else {
@@ -21,6 +21,7 @@
                     <th>Название</th>
                     <th>Код</th>
                     <th>Описание</th>
+                    <th>Пользователи</th>
                 </tr>
             </thead>
             <tbody>
@@ -30,6 +31,19 @@
                     <td><a href="@routes.ProjectsController.edit(project.id)">@project.name</a></td>
                     <td>@project.code</td>
                     <td>@project.description</td>
+                    <td>
+                        @userData.get(project.id) match {
+                            case Some(data) => {
+                                @data.map { case (status, count) =>
+                                    <span class="badge user-status-@status.toString.toLowerCase" title="@status.toString">@count</span>
+                                }
+                                <a href="@routes.UserInProjectController.userList(project.id)"><span class="fa fa-edit"></span></a>
+                            }
+                            case None => {
+                                <a href="@routes.UserInProjectController.userList(project.id)">Нет пользователей <span class="fa fa-edit"></span></a>
+                            }
+                        }
+                    </td>
                 </tr>
             }
             </tbody>

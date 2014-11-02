@@ -13,3 +13,26 @@
     border-bottom: 1px dashed #ddddaa;
     padding: 0 20px 10px;
 }
+
+.user-status-active {
+    color: #ffffff;
+    background-color: #5bc0de;
+    border-color: #46b8da;
+}
+
+.user-status-admin {
+    color: #ffffff;
+    background-color: #43ac6a;
+    border-color: #3c9a5f;
+}
+
+.user-status-request {
+    color: #ffffff;
+    background-color: #f04124;
+    border-color: #ea2f10;
+}
+
+.user-status-blocked {
+    /* just default */
+}
+

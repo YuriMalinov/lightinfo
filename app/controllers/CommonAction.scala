@@ -1,12 +1,10 @@
 package controllers
 
-import models.{User, AppDB, Project}
+import models.{AppDB, Project, User}
+import play.api.data.{Form, Mapping}
 import play.api.mvc._
-import securesocial.core.{UserService, SecureSocial}
-import system.DbDef
-
-import DbDef._
-
+import securesocial.core.{SecureSocial, UserService}
+import system.DbDef._
 
 import scala.concurrent.Future
 
@@ -44,16 +42,36 @@ object CommonAction extends ActionBuilder[CommonRequest] {
     }
   }
 
-  def apply(checkUser: User ⇒ Option[String], requireUser: Boolean, block: CommonRequest[AnyContent] ⇒ Result): Action[AnyContent] = apply { request ⇒
-    if (!requireUser) {
-      block(request)
-    } else if (request.user.isEmpty) {
-      ApplicationController.Forbidden("Authorization required")
-    } else {
-      checkUser(request.user.get) match {
-        case Some(error) ⇒ ApplicationController.Forbidden(error)
-        case None ⇒ block(request)
+  def requireUser(checkUser: User ⇒ Option[String])(block: CommonRequest[AnyContent] ⇒ Result): Action[AnyContent] = apply { request ⇒
+    inTransaction {
+      if (request.user.isEmpty) {
+        ApplicationController.Forbidden("Authorization required")
+      } else {
+        checkUser(request.user.get) match {
+          case Some(error) ⇒ ApplicationController.Forbidden(error)
+          case None ⇒ block(request)
+        }
       }
+    }
+  }
+
+  def requireAnyUser(block: CommonRequest[AnyContent] ⇒ Result): Action[AnyContent] = apply { request ⇒
+    inTransaction {
+      if (request.user.isEmpty) {
+        ApplicationController.Forbidden("Authorization required")
+      } else {
+        block(request)
+      }
+    }
+  }
+
+  def requireProjectAdmin(projectId: Option[Int])(block: CommonRequest[AnyContent] ⇒ Result) = requireUser(u ⇒ Access.userIsAdminOfProject(u, projectId))(block)
+
+  def bindPost[T, A <: SimpleResult](binding: Mapping[T])(block: T ⇒ A)(implicit request: Request[AnyContent]): SimpleResult = {
+    val result = Form(binding).bindFromRequest()
+    result.value match {
+      case Some(v) ⇒ block(v)
+      case None ⇒ ApplicationController.BadRequest(result.errorsAsJson.toString())
     }
   }
 }

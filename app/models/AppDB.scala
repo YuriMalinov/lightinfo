@@ -70,7 +70,7 @@ object UserStatus extends Enumeration {
   val Blocked = Value(4, "Blocked")
 }
 
-case class UserInProject(userId: Int, projectId: Int, userStatus: UserStatus.Value) extends Entity {
+case class UserInProject(userId: Int, projectId: Int, var userStatus: UserStatus.Value) extends Entity {
   def this() = this(0, 0, UserStatus.Request)
 }
 
@@ -119,6 +119,13 @@ object AppDB extends Schema {
   ))
 
   val authenticatorTable = table[AuthenticatorHolder]
+
+  val userInProjectTable = table[UserInProject]
+  on(userInProjectTable)(t ⇒ declare(
+    columns(t.userId, t.projectId) are unique
+  ))
+  val userInProjectToUser = oneToManyRelation(userTable, userInProjectTable) via { (u, up) ⇒ up.userId === u.id}
+  val userInProjectToProject = oneToManyRelation(projectTable, userInProjectTable) via { (p, up) ⇒ up.projectId === p.id}
 
   override def defaultLengthOfString: Int = -1
 

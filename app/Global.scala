@@ -31,6 +31,7 @@ object Global extends GlobalSettings {
     ex.getCause match {
       case NotFoundEx(message) ⇒ Future.successful(ApplicationController.NotFound(message))
       case BadRequestEx(message) ⇒ Future.successful(ApplicationController.BadRequest(message))
+      case NotFoundEx(message) ⇒ Future.successful(ApplicationController.Forbidden(message))
       case e: Throwable ⇒ super.onError(request, ex)
     }
   }
