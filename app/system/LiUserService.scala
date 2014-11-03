@@ -1,6 +1,7 @@
 package system
 
 import models.{User, AppDB}
+import org.joda.time.DateTime
 import play.api.{Plugin, Application}
 import securesocial.core.providers.Token
 import securesocial.core.{UserServicePlugin, Identity, IdentityId, UserService}
@@ -55,7 +56,9 @@ class LiUserService(app: Application) extends UserServicePlugin(app) {
     AppDB.tokenTable.insert(token)
   }
 
-  override def deleteExpiredTokens(): Unit = ???
+  override def deleteExpiredTokens(): Unit = inTransaction {
+    AppDB.tokenTable.delete(from(AppDB.tokenTable)(t ⇒ where(t.expirationTime <= DateTime.now()) select t))
+  }
 
   override def findToken(token: String): Option[Token] = inTransaction {
     from(AppDB.tokenTable)(t ⇒ where(t.uuid === token) select t).headOption

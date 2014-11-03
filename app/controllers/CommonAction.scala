@@ -1,6 +1,6 @@
 package controllers
 
-import models.{AppDB, Project, User}
+import models._
 import play.api.data.{Form, Mapping}
 import play.api.mvc._
 import securesocial.core.{SecureSocial, UserService}
@@ -15,11 +15,18 @@ class CommonRequest[A](val commonData: CommonData, val user: Option[User], reque
 object CommonRequest {
   implicit def requestToCommonRequest[A](request: Request[A]): CommonRequest[A] = {
     inTransaction {
-      val projects = from(AppDB.projectTable)(p ⇒ select(p) orderBy p.name).toList
-      val currentProject = request.session.get("projectId").flatMap(id ⇒ projects.find(_.id == id.toInt))
-
       val user = SecureSocial.authenticatorFromRequest(request)
         .flatMap(auth ⇒ UserService.find(auth.identityId)).asInstanceOf[Option[User]]
+
+      val projects = from(AppDB.projectTable)(p ⇒
+        where(
+          p.allowRequestForAccess === true
+            or p.projectType === ProjectType.Public
+            // TODO: Разобраться с inhibitWhen + exists
+            or exists(from(AppDB.userInProjectTable)(u ⇒ where(u.userId === user.map(_.id).getOrElse(0) and u.userStatus.in(Seq(UserStatus.Active, UserStatus.Admin))) select u))
+        ) select p orderBy p.name).toList
+      val currentProject = request.session.get("projectId").flatMap(id ⇒ projects.find(_.id == id.toInt))
+
 
       val data = new CommonData(projects, currentProject)
 

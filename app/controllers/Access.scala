@@ -1,7 +1,9 @@
 package controllers
 
-import models.{UserStatus, AppDB, User}
+import models.{AppDB, ProjectType, User, UserStatus}
 import system.DbDef._
+
+case class InfoAccess(view: Boolean, viewInternal: Boolean, edit: Boolean, isMemberOfProject: Boolean, isLoggedIn: Boolean)
 
 object Access {
   def userIsAdminOfProject(user: User, projectId: Option[Int]): Option[String] = projectId.flatMap(p ⇒ userIsAdminOfProject(user.id, p))
@@ -28,10 +30,38 @@ object Access {
     }
   }
 
-  def require[T](check: Option[String])(block: ⇒ T): T = {
+  @inline def require[T](check: Option[String])(block: ⇒ T): T = {
     check match {
       case Some(error) ⇒ throw new ForbiddenEx(error)
       case None ⇒ block
     }
+  }
+
+  @inline def require[T](hasAccess: Boolean, description: ⇒ String = "No access")(block: ⇒ T): T = {
+    if (hasAccess) {
+      block
+    } else {
+      throw new ForbiddenEx(description)
+    }
+  }
+
+  def getInfoAccess(user: Option[User], projectId: Int): InfoAccess = inTransaction {
+    val project = AppDB.projectTable.get(projectId)
+    val userInProject = user.flatMap(u ⇒ AppDB.userInProjectTable.where(uu ⇒ uu.userId === u.id and uu.projectId === projectId).headOption)
+
+    val userHasAccessToProject = userInProject.exists(u ⇒ u.userStatus == UserStatus.Active || u.userStatus == UserStatus.Admin)
+    val canView = project.projectType match {
+      case ProjectType.Public ⇒ true
+      case ProjectType.Protected ⇒ user.isDefined
+      case ProjectType.Private ⇒ userHasAccessToProject
+    }
+
+    InfoAccess(
+      view = canView,
+      viewInternal = canView && user.isDefined,
+      edit = userHasAccessToProject,
+      isLoggedIn = user.isDefined,
+      isMemberOfProject = userHasAccessToProject
+    )
   }
 }

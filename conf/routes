@@ -2,55 +2,56 @@
 # This file defines all application routes (Higher priority routes first)
 # ~~~~
 
-GET         /                              controllers.ApplicationController.index
+GET         /                                    controllers.ApplicationController.index
 
-GET         /ddl                           controllers.ApplicationController.ddl
-GET         /select-project                controllers.ApplicationController.selectProject(projectId: Int)
+GET         /ddl                                 controllers.ApplicationController.ddl
+GET         /select-project                      controllers.ApplicationController.selectProject(projectId: Int)
 
-GET         /projects                      controllers.ProjectsController.projects(page: Int ?= 0, pageSize: Int ?= 100)
-GET         /projects/create               controllers.ProjectsController.create()
-POST        /projects/create-save          controllers.ProjectsController.createSave()
-GET         /projects/edit                 controllers.ProjectsController.edit(id: Int)
-POST        /projects/edit-save            controllers.ProjectsController.editSave(id: Int)
-GET         /projects/delete               controllers.ProjectsController.delete(id: Int)
+GET         /projects                            controllers.ProjectsController.projects(page: Int ?= 0, pageSize: Int ?= 100)
+GET         /projects/create                     controllers.ProjectsController.create()
+POST        /projects/create-save                controllers.ProjectsController.createSave()
+GET         /projects/edit                       controllers.ProjectsController.edit(id: Int)
+POST        /projects/edit-save                  controllers.ProjectsController.editSave(id: Int)
+GET         /projects/delete                     controllers.ProjectsController.delete(id: Int)
 
-GET         /projects/users                controllers.UserInProjectController.userList(projectId: Int)
-POST        /projects/users/delete         controllers.UserInProjectController.deleteUser()
-POST        /projects/users/add            controllers.UserInProjectController.addUser()
-POST        /projects/users/change         controllers.UserInProjectController.changeUser()
+GET         /projects/users                      controllers.UserInProjectController.userList(projectId: Int)
+POST        /projects/users/delete               controllers.UserInProjectController.deleteUser()
+POST        /projects/users/add                  controllers.UserInProjectController.addUser()
+POST        /projects/users/change               controllers.UserInProjectController.changeUser()
+POST        /projects/users/requestAccess        controllers.UserInProjectController.requestAccess()
 
 
-GET         /info/create                   controllers.InfoController.create()
-POST        /info/create-save              controllers.InfoController.createSave()
-GET         /info/edit                     controllers.InfoController.edit(id: Int)
-POST        /info/edit-save                controllers.InfoController.editSave(id: Int)
-POST        /info/upload-image             controllers.InfoController.uploadImage(infoId: Int)
-GET         /image/:infoId/:imageId        controllers.InfoController.getImage(infoId: Int, imageId: Long)
+GET         /info/create                         controllers.InfoController.create()
+POST        /info/create-save                    controllers.InfoController.createSave()
+GET         /info/edit                           controllers.InfoController.edit(id: Int)
+POST        /info/edit-save                      controllers.InfoController.editSave(id: Int)
+POST        /info/upload-image                   controllers.InfoController.uploadImage(infoId: Int)
+GET         /image/:infoId/:imageId              controllers.InfoController.getImage(infoId: Int, imageId: Long)
 
 
 # Map static resources from the /public folder to the /assets URL path
-GET         /assets/*file                  controllers.Assets.at(path="/public", file)
+GET         /assets/*file                        controllers.Assets.at(path="/public", file)
 
 
 
 # Secure social
 # Login page
-GET         /login                         securesocial.controllers.LoginPage.login
-GET         /logout                        securesocial.controllers.LoginPage.logout
+GET         /login                               securesocial.controllers.LoginPage.login
+GET         /logout                              securesocial.controllers.LoginPage.logout
 
 # User Registration and password handling
-GET         /signup                        securesocial.controllers.Registration.startSignUp
-POST        /signup                        securesocial.controllers.Registration.handleStartSignUp
-GET         /signup/:token                 securesocial.controllers.Registration.signUp(token)
-POST        /signup/:token                 securesocial.controllers.Registration.handleSignUp(token)
-GET         /reset                         securesocial.controllers.Registration.startResetPassword
-POST        /reset                         securesocial.controllers.Registration.handleStartResetPassword
-GET         /reset/:token                  securesocial.controllers.Registration.resetPassword(token)
-POST        /reset/:token                  securesocial.controllers.Registration.handleResetPassword(token)
-GET         /password                      securesocial.controllers.PasswordChange.page
-POST        /password                      securesocial.controllers.PasswordChange.handlePasswordChange
+GET         /signup                              securesocial.controllers.Registration.startSignUp
+POST        /signup                              securesocial.controllers.Registration.handleStartSignUp
+GET         /signup/:token                       securesocial.controllers.Registration.signUp(token)
+POST        /signup/:token                       securesocial.controllers.Registration.handleSignUp(token)
+GET         /reset                               securesocial.controllers.Registration.startResetPassword
+POST        /reset                               securesocial.controllers.Registration.handleStartResetPassword
+GET         /reset/:token                        securesocial.controllers.Registration.resetPassword(token)
+POST        /reset/:token                        securesocial.controllers.Registration.handleResetPassword(token)
+GET         /password                            securesocial.controllers.PasswordChange.page
+POST        /password                            securesocial.controllers.PasswordChange.handlePasswordChange
 
 # Providers entry points
-GET         /authenticate/:provider        securesocial.controllers.ProviderController.authenticate(provider)
-POST        /authenticate/:provider        securesocial.controllers.ProviderController.authenticateByPost(provider)
-GET         /not-authorized                securesocial.controllers.ProviderController.notAuthorized
+GET         /authenticate/:provider              securesocial.controllers.ProviderController.authenticate(provider)
+POST        /authenticate/:provider              securesocial.controllers.ProviderController.authenticateByPost(provider)
+GET         /not-authorized                      securesocial.controllers.ProviderController.notAuthorized

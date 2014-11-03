@@ -45,6 +45,8 @@
                 <fieldset>
                     @helper.inputText(form("name"), 'class → "form-control", '_label → "Название")
                     @helper.inputText(form("keywords"), 'class → "form-control", '_label → "Ключевые слова")
+                    @helper.inputText(form("code"), '_label → "Код", '_help → "Используется для ссылок на страницы, например, с привязкой к урлам другого проекта.")
+                    @helper.checkbox(form("isPrivate"), '_label → "Скрытое", '_help → "Доступно только пользователям, имеющим доступ на редактирование.")
                     @helper.inputText(form("parentInfoId"), '_label → "Папка")
                 </fieldset>
             </div>

@@ -38,7 +38,7 @@ object UserInProjectController extends Controller {
   }
 
   def changeUser() = CommonAction.requireAnyUser { implicit request ⇒
-    CommonAction.bindPost(tuple("projectId" -> number, "userId" -> number, "status" -> number)) { case (projectId, userId, status) ⇒
+    CommonAction.bindPost(tuple("projectId" → number, "userId" → number, "status" → number)) { case (projectId, userId, status) ⇒
       Access.require(Access.userIsAdminOfProject(projectId)) {
         AppDB.userInProjectTable.where(u ⇒ u.projectId === projectId and u.userId === userId).headOption match {
           case Some(uip) ⇒
@@ -48,6 +48,18 @@ object UserInProjectController extends Controller {
           case None ⇒
             NotFound("Can't find user")
         }
+      }
+    }
+  }
+
+  def requestAccess() = CommonAction.requireAnyUser { implicit request ⇒
+    CommonAction.bindPost(single("projectId" → number)) { case projectId ⇒
+      AppDB.userInProjectTable.where(u ⇒ u.projectId === projectId and u.userId === request.user.get.id).headOption match {
+        case Some(uip) ⇒
+          Redirect(routes.ApplicationController.index()).flashing(s"Запрос на доступ уже добавлен, состояние ${uip.userStatus.toString}" → "warning")
+        case None ⇒
+          AppDB.userInProjectTable.insert(UserInProject(request.user.get.id, projectId, UserStatus.Request))
+          Redirect(routes.ApplicationController.index()).flashing("Запрос на доступ добавлен" → "success")
       }
     }
   }

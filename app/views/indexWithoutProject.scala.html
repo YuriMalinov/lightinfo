@@ -1,0 +1,14 @@
+@()(implicit request: CommonRequest[_])
+
+@main() {
+    @if(request.commonData.projects.isEmpty) {
+        <a href="@routes.ProjectsController.create()" class="btn btn-default">Создать проект</a>
+    } else {
+        <h1 class="page-header">Выберите проект</h1>
+        <table class="table table-hover table-striped">
+        @request.commonData.projects.map { project =>
+            <tr><td><a href="@routes.ApplicationController.selectProject(project.id)">@project.name</a></td></tr>
+        }
+        </table>
+    }
+}

@@ -24,10 +24,10 @@ case class Project(var name: String, var code: String, var description: String, 
   def this() = this("", "", "", ProjectType.Public, true)
 }
 
-case class Info(var projectId: Int, var parentInfoId: Option[Int], var name: String, var keywords: String, var text: String, var childrenCount: Int = 0, var isPublic: Boolean = true) extends Entity {
+case class Info(var projectId: Int, var parentInfoId: Option[Int], var name: String, var keywords: String, var code: String, var text: String, var childrenCount: Int = 0, var isPrivate: Boolean = false) extends Entity {
   var lastModified = DateTime.now()
 
-  def this() = this(0, Some(0), "", "", "")
+  def this() = this(0, Some(0), "", "", "", "")
 
   lazy val children = AppDB.infoToParent.left(this)
   lazy val parent = AppDB.infoToParent.right(this)
@@ -39,9 +39,12 @@ case class InfoImage(infoId: Int, data: Array[Byte], contentType: String) extend
   val id: Long = (Math.random() * Long.MaxValue).toLong
 }
 
-case class InfoRevision(infoId: Int, projectId: Int, parentInfoId: Option[Int], name: String, keywords: String, text: String) extends Entity {
+case class InfoRevision(infoId: Int, projectId: Int, parentInfoId: Option[Int], name: String, keywords: String, var code: String, var isPrivate: Boolean, text: String) extends Entity {
+  def this() = this(0, 0, Option(0), "", "", "", false, "")
+
   val revisionDate = DateTime.now()
 }
+
 
 case class User(override val id: Int, var providerId: String, var providerUserId: String, var email: Option[String],
                 var firstName: String, var lastName: String, var avatarUrl: Option[String],
