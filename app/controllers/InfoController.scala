@@ -89,4 +89,13 @@ object InfoController extends Controller {
       }
     }
   }
+
+  def viewInfo(infoId: Int) = CommonAction { implicit request ⇒
+    val info = AppDB.infoTable.lookup(infoId).getOrElse(throw NotFoundEx(s"Can't find info $infoId"))
+    val access = Access.getInfoAccess(request.user, info.projectId)
+    Access.require(access.view) {
+      // TODO: implement server side rendering when Internet would be available and Rhino could be downloaded.
+      Ok(views.html.info.infoView(info, access))
+    }
+  }
 }

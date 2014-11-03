@@ -16,7 +16,7 @@
         </h1>
         <div class="list-group">
         @infoDisplays.map { info =>
-            <a href="@routes.InfoController.edit(info.id)" class="list-group-item"
+            <a href="@routes.InfoController.viewInfo(info.id)" class="list-group-item"
             style="padding-left : @(10 + 10 * info.level + "px")">
                 @info.name
                 <span class="badge badge-info">@info.childrenCount</span>

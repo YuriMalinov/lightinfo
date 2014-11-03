@@ -28,6 +28,7 @@ POST        /info/edit-save                      controllers.InfoController.edit
 POST        /info/upload-image                   controllers.InfoController.uploadImage(infoId: Int)
 GET         /image/:infoId/:imageId              controllers.InfoController.getImage(infoId: Int, imageId: Long)
 
+GET         /view/:infoId                        controllers.InfoController.viewInfo(infoId: Int)
 
 # Map static resources from the /public folder to the /assets URL path
 GET         /assets/*file                        controllers.Assets.at(path="/public", file)
