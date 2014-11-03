@@ -29,18 +29,38 @@ case class Info(var projectId: Int, var parentInfoId: Option[Int], var name: Str
 
   def this() = this(0, Some(0), "", "", "", "")
 
-  lazy val children = AppDB.infoToParent.left(this)
-  lazy val parent = AppDB.infoToParent.right(this)
-  lazy val project = AppDB.projectToInfo.right(this)
-  lazy val images = AppDB.infoToInfoImage.left(this)
+  def makeRevision(userId: Int) = InfoRevision(
+    infoId = id,
+    projectId = projectId,
+    parentInfoId = parentInfoId,
+    name = name,
+    keywords = keywords,
+    code = code,
+    isPrivate = isPrivate,
+    text = text,
+    userId = userId
+  )
+
+  def restoreRevision(revision: InfoRevision): Unit = {
+    name = revision.name
+    keywords = revision.keywords
+    code = revision.code
+    text = revision.text
+    parentInfoId = revision.parentInfoId
+    isPrivate = revision.isPrivate
+    projectId = revision.projectId
+  }
 }
 
 case class InfoImage(infoId: Int, data: Array[Byte], contentType: String) extends KeyedEntity[Long] {
   val id: Long = (Math.random() * Long.MaxValue).toLong
 }
 
-case class InfoRevision(infoId: Int, projectId: Int, parentInfoId: Option[Int], name: String, keywords: String, var code: String, var isPrivate: Boolean, text: String) extends Entity {
-  def this() = this(0, 0, Option(0), "", "", "", false, "")
+case class InfoRevision(infoId: Int, projectId: Int, parentInfoId: Option[Int], name: String, keywords: String, var code: String, var isPrivate: Boolean, text: String, userId: Int) extends Entity {
+  def this() = this(0, 0, Option(0), "", "", "", false, "", 0)
+
+  def info = AppDB.infoToRevisions.right(this)
+  def user = AppDB.userToRevisions.right(this)
 
   val revisionDate = DateTime.now()
 }
@@ -129,6 +149,7 @@ object AppDB extends Schema {
   ))
   val userInProjectToUser = oneToManyRelation(userTable, userInProjectTable) via { (u, up) ⇒ up.userId === u.id}
   val userInProjectToProject = oneToManyRelation(projectTable, userInProjectTable) via { (p, up) ⇒ up.projectId === p.id}
+  val userToRevisions = oneToManyRelation(userTable, infoRevisionTable) via { (u, r) ⇒ r.userId === u.id}
 
   override def defaultLengthOfString: Int = -1
 

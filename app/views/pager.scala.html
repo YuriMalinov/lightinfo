@@ -1,0 +1,32 @@
+@(page: Page[_])(implicit request: Request[_])
+
+@defining((page.page, (page.totalCount.toDouble / page.pageSize).ceil.toInt - 1)) { case (pageIndex, lastPage) =>
+<ul class="pagination">
+    @if(pageIndex > 0) {
+        @pageLink(pageIndex - 1, false)
+    }
+
+    @Range(0, lastPage + 1).map { p =>
+        @pageLink(p, p == pageIndex)
+    }
+    @if(pageIndex < lastPage) {
+        @pageLink(pageIndex + 1, false)
+    }
+</ul>
+}
+<ul class="pagination">
+    <li><a>На странице:</a></li>
+    @List(100, 500, 1000).map { pageSize =>
+        <li @if(pageSize == page.pageSize) {
+            class="active" }><a href="@Url('pageSize → pageSize)">@pageSize</a></li>
+    }
+</ul>
+
+@pageLink(page: Int, active: Boolean) = {
+    <li @if(active) {
+        class="active"}>
+        <a href="@Url('page -> page)">@{
+            page + 1
+        }</a>
+    </li>
+}

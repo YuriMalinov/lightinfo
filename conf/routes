@@ -27,6 +27,9 @@ GET         /info/edit                           controllers.InfoController.edit
 POST        /info/edit-save                      controllers.InfoController.editSave(id: Int)
 POST        /info/upload-image                   controllers.InfoController.uploadImage(infoId: Int)
 GET         /image/:infoId/:imageId              controllers.InfoController.getImage(infoId: Int, imageId: Long)
+GET         /info/revisions/                     controllers.InfoController.revisions(infoId: Int, page: Int ?= 0, pageSize: Int ?= 100)
+GET         /info/view-revision/                 controllers.InfoController.viewRevision(revisionId: Int)
+POST        /info/restore-revision/              controllers.InfoController.restoreRevision()
 
 GET         /view/:infoId                        controllers.InfoController.viewInfo(infoId: Int)
 

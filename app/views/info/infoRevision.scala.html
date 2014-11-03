@@ -1,0 +1,64 @@
+@(revision: InfoRevisionData, previous: Option[InfoRevisionData])(implicit request: CommonRequest[_])
+
+@head() = {
+    <link rel="stylesheet" href="@routes.Assets.at("css/info/info-edit.css")">
+    <link rel="stylesheet" href="@routes.Assets.at("magnific-popup/magnific-popup.css")">
+}
+
+@item(title: String, field: InfoRevisionData ⇒ Any) = {
+    @defining((field(revision), previous.map(field).getOrElse(""))) { case (newVal, oldVal) =>
+    <tr @if(newVal != oldVal) {class="success"}>
+        <th>@title</th>
+        <td>@newVal</td>
+        <td>@oldVal</td>
+    </tr>
+    }
+}
+
+@extraControls() = {
+    <form action="@routes.InfoController.restoreRevision()" method="post">
+        <input type="hidden" name="revisionId" value="@revision.rev.id">
+        <input type="submit" value="Восстановить" class="btn btn-xs btn-warning">
+    </form>
+}
+
+@main(fluid = true, head = head()) {
+    <script type="text/javascript" src="@routes.Assets.at("js/marked.js")"></script>
+    <script type="text/javascript" src="@routes.Assets.at("magnific-popup/jquery.magnific-popup.min.js")"></script>
+    <script type="text/javascript" src="@routes.Assets.at("javascript/info-render.js")"></script>
+    <script type="text/javascript" src="@routes.Assets.at("javascript/info/info-revision.js")"></script>
+    <div class="page-header">
+        <h1>
+            @revision.rev.name
+            @revisionControls(revision.rev.infoId, "revisions", extraControls())
+        </h1>
+    </div>
+
+    <div>
+        <div class="panel panel-default">
+            <div class="panel-heading">Общая информация</div>
+            <div>
+                <table class="table table-hover table-condensed table-striped">
+                    @item("Название", _.rev.name)
+                    @item("Ключевые слова", _.rev.keywords)
+                    @item("Код", _.rev.code)
+                    @item("Скрытое", x ⇒ if (x.rev.isPrivate) "да" else "нет")
+                    @item("Папка", _.parentInfo.map(_.name).getOrElse("нет"))
+                    @item("Последний менял", _.user.fullName)
+                </table>
+            </div>
+        </div>
+        <div class="well">
+            <div class="col-lg-6">
+                <pre id="text">@revision.rev.text</pre>
+            </div>
+            <div class="panel panel-default col-lg-6">
+                <div class="panel-body" id="preview">
+                </div>
+            </div>
+            <div class="clearfix"></div>
+        </div>
+        <a class="btn btn-danger hidden" onclick="return confirm ( 'Точно? Пути назад нет' )">
+            Шняга, чтобы IDEA успокоилась и не светила всё красным.</a>
+    </div>
+}

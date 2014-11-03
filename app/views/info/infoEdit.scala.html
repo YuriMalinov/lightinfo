@@ -21,6 +21,7 @@
     <div class="page-header">
         <h1>@if(info.id == 0) { Новая страничка } else {
             @info.name
+            @revisionControls(info.id, "edit")
         }</h1>
     </div>
 
@@ -66,15 +67,10 @@
             <div class="form-group">
                 <div class="col-lg-10 col-lg-offset-2">
                     <button type="submit" class="btn btn-primary">Сохранить</button>
-                    @if(info.id != 0) {
-                        <a class="btn btn-info" href="@routes.InfoController.viewInfo(info.id)">Перейти к просмотру</a>
-                    }
-                    <a class="btn btn-info" href="@routes.ApplicationController.index()">Назад, к проектам</a>
+                    <a class="btn btn-info" href="@routes.ApplicationController.index()">Назад, ко всем страницам</a>
                 </div>
             </div>
         </div>
-        <a class="btn btn-danger hidden" onclick="return confirm ( 'Точно? Пути назад нет' )">
-            Шняга, чтобы IDEA успокоилась и не светила всё красным.</a>
     }
     </div>
 }

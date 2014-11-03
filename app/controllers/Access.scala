@@ -45,6 +45,11 @@ object Access {
     }
   }
 
+  def getInfoAccess(infoId: Int)(implicit request: CommonRequest[_]): InfoAccess = {
+    val info = AppDB.infoTable.lookup(infoId).getOrElse(throw NotFoundEx(s"Can't find info with id = $infoId"))
+    getInfoAccess(request.user, infoId)
+  }
+
   def getInfoAccess(user: Option[User], projectId: Int): InfoAccess = inTransaction {
     val project = AppDB.projectTable.get(projectId)
     val userInProject = user.flatMap(u ⇒ AppDB.userInProjectTable.where(uu ⇒ uu.userId === u.id and uu.projectId === projectId).headOption)

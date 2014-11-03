@@ -1,0 +1,10 @@
+@(infoId: Int, action: String, extra: ⇒ Html = null)
+
+<span class="btn-group btn-group-xs pull-right">
+    <a href="@routes.InfoController.edit(infoId)" class="btn btn-default btn-sm @if(action == "edit") {disabled}">Редактировать</a>
+    <a href="@routes.InfoController.viewInfo(infoId)" class="btn btn-default btn-sm @if(action == "view") {disabled}">Просмотр</a>
+    <a href="@routes.InfoController.revisions(infoId)" class="btn btn-default btn-sm @if(action == "revisions") {disabled}">Ревизии</a>
+    @if(extra != null) {
+        @extra
+    }
+</span>

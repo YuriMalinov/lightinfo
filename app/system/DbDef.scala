@@ -2,9 +2,10 @@ package system
 
 import java.sql.Timestamp
 
+import controllers.NotFoundEx
 import models.Page
 import org.joda.time.DateTime
-import org.squeryl.{Query, PrimitiveTypeMode}
+import org.squeryl.{KeyedEntityDef, Table, Query, PrimitiveTypeMode}
 import org.squeryl.dsl._
 
 object DbDef extends PrimitiveTypeMode {
@@ -30,5 +31,9 @@ object DbDef extends PrimitiveTypeMode {
 
   def selectPage[T](q: Query[T], page: Int, pageSize: Int) =
     Page(q.page(page * pageSize, pageSize).toSeq, page, pageSize, from(q)(l ⇒ compute(count)).head.measures)
+
+  implicit class Lookup404[T, K](t: Table[T])(implicit ked: KeyedEntityDef[T,K]) {
+    def lookup404(k: K): T = t.lookup(k).getOrElse(throw NotFoundEx(s"Can't find key [$k] in table [${t.prefixedName}]"))
+  }
 }
 

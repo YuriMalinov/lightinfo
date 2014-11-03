@@ -49,35 +49,6 @@
             </tbody>
         </table>
 
-
-        @defining((projectsPage.page, (projectsPage.totalCount.toDouble / projectsPage.pageSize).ceil.toInt - 1)) { case (page, lastPage) =>
-        <ul class="pagination">
-            @if(page > 0) {
-                @pageLink(page - 1, false)
-            }
-
-            @Range(0, lastPage + 1).map { p =>
-                @pageLink(p, p == page)
-            }
-            @if(page < lastPage) {
-                @pageLink(page + 1, false)
-            }
-        </ul>
-        }
-        <ul class="pagination">
-            <li><a>На странице:</a></li>
-            @List(100, 500, 1000).map { pageSize =>
-                <li @if(pageSize == projectsPage.pageSize) {
-                    class="active" }><a href="@Url('pageSize → pageSize)">@pageSize</a></li>
-            }
-        </ul>
+        @pager(projectsPage)
     }
-}
-@pageLink(page: Int, active: Boolean) = {
-    <li @if(active) {
-        class="active"}>
-        <a href="@Url('page -> page)">@{
-            page + 1
-        }</a>
-    </li>
 }

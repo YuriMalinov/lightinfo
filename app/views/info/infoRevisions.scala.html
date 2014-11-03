@@ -1,0 +1,27 @@
+@(revisionPage: Page[(User, InfoRevision)], info: Info)(implicit request: CommonRequest[_])
+
+@main() {
+    <div class="page-header">
+        <h1 id="tables">@info.name
+            @revisionControls(info.id, "revisions")
+        </h1>
+    </div>
+
+    @if(revisionPage.totalCount == 0) {
+        <div class="alert alert-info">
+            <h4>Ещё пока нет ревизий</h4>
+            <p>Ещё не успели ничего наменять ).</p>
+        </div>
+    } else {
+        <div class="list-group">
+
+        @revisionPage.list.map { case (user, revision) =>
+        <a class="list-group-item" href="@routes.InfoController.viewRevision(revision.id)">
+            <img src="@user.avatarUrl" width="32"> @user.fullName @revision.revisionDate
+        </a>
+        }
+        </div>
+
+        @pager(revisionPage)
+    }
+}

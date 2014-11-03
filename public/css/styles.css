@@ -36,3 +36,8 @@
     /* just default */
 }
 
+.btn-group form, .btn-group form input[type=submit] {
+    display: inline-block;
+    position: relative;
+    float: left;
+}
