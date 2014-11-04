@@ -4,6 +4,7 @@ import models._
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.http.{ContentTypeOf, Writeable}
+import play.api.libs.json.JsBoolean
 import play.api.mvc.{Action, AnyContent, Controller}
 import system.DbDef._
 
@@ -25,7 +26,7 @@ object InfoController extends Controller {
     )(InfoData.apply)(InfoData.unapply)
   )
 
-  def create() = editImpl(None, save = false)
+  def create(code: String = "") = editImpl(None, save = false, code)
 
   def createSave() = editImpl(None, save = true)
 
@@ -33,12 +34,12 @@ object InfoController extends Controller {
 
   def editSave(id: Int) = editImpl(Some(id), save = true)
 
-  private def editImpl(id: Option[Int], save: Boolean): Action[AnyContent] = CommonAction.requireAnyUser { implicit request ⇒
+  private def editImpl(id: Option[Int], save: Boolean, code: String = ""): Action[AnyContent] = CommonAction.requireAnyUser { implicit request ⇒
     val info = id match {
       case Some(infoId) ⇒ AppDB.infoTable.lookup(infoId).getOrElse(throw NotFoundEx(s"Can't find info with id = $infoId"))
       case None ⇒ Info(
         projectId = request.commonData.currentProject.getOrElse(throw NotFoundEx("Current project is not set. Go to main page.")).id,
-        None, "", "", "", "", 0, isPrivate = false
+        None, "", "", code, "", 0, isPrivate = false
       )
     }
 
@@ -89,7 +90,7 @@ object InfoController extends Controller {
 
   def getImage(infoId: Int, imageId: Long) = Action {
     inTransaction {
-      from(AppDB.infoImageTable) { i ⇒ where(i.infoId === infoId and i.id === imageId) select i}.headOption match {
+      AppDB.infoImageTable.where(i ⇒ i.infoId === infoId and i.id === imageId).singleOption match {
         case Some(image) ⇒ Ok(image)(Writeable((i: InfoImage) ⇒ i.data)(ContentTypeOf(Some(image.contentType))))
         case None ⇒ BadRequest(s"Image with id $imageId for info $infoId not found.")
       }
@@ -98,10 +99,40 @@ object InfoController extends Controller {
 
   def viewInfo(infoId: Int) = CommonAction { implicit request ⇒
     val info = AppDB.infoTable.lookup(infoId).getOrElse(throw NotFoundEx(s"Can't find info $infoId"))
+    viewInfoImpl(info)
+  }
+
+  def viewInfoImpl(info: Info)(implicit request: CommonRequest[AnyContent]) = {
     val access = Access.getInfoAccess(request.user, info.projectId)
     Access.require(access.view) {
       // TODO: implement server side rendering when Internet would be available and Rhino could be downloaded.
       Ok(views.html.info.infoView(info, access))
+    }
+  }
+
+  def viewInfoByCode(code: String, projectCode: String) = CommonAction { implicit request ⇒
+    val project = findProjectByCode(projectCode)
+    val access = Access.getInfoAccess(request.user, project.id)
+    Access.require(access.view) {
+      ApplicationController.selectProjectModifySession(
+        AppDB.infoTable.where(i ⇒ i.code === code and i.projectId === project.id).singleOption match {
+          case Some(info) ⇒ viewInfoImpl(info)
+          case None ⇒ Ok(views.html.info.infoNotFound(code))
+        }, project.id)
+    }
+  }
+
+  def findProjectByCode(projectCode: String): Project = {
+    AppDB.projectTable.where(p ⇒ p.code === projectCode).singleOption.getOrElse(throw NotFoundEx(s"Can't find project with code $projectCode"))
+  }
+
+  def checkInfoByCode(code: String, projectCode: String) = Action {
+    val project = findProjectByCode(projectCode)
+    inTransaction {
+      Ok(AppDB.infoTable.where(i ⇒ i.code === code and i.projectId === project.id).singleOption match {
+        case Some(info) ⇒ JsBoolean(value = true)
+        case None ⇒ JsBoolean(value = false)
+      })
     }
   }
 
@@ -120,7 +151,7 @@ object InfoController extends Controller {
   def viewRevision(revisionId: Int) = CommonAction.requireAnyUser { implicit request ⇒
     val revision = AppDB.infoRevisionTable.lookup404(revisionId)
     Access.require(Access.getInfoAccess(revision.infoId).edit, "No access to info") {
-      val previous = from(AppDB.infoRevisionTable)(r ⇒ where(r.infoId === revision.infoId and r.revisionDate < revision.revisionDate) select r orderBy r.id.desc).headOption
+      val previous = from(AppDB.infoRevisionTable)(r ⇒ where(r.infoId === revision.infoId and r.revisionDate < revision.revisionDate) select r orderBy r.id.desc).singleOption
 
       def revData(rev: InfoRevision) = InfoRevisionData(
         rev = rev,

@@ -19,11 +19,11 @@
     </div>
 
     @if(access.edit) {
-        <div>
+        <div class="help-block">
             @if(info.code.size > 0) {
-                <div class="help-block">Код: @info.code</div>
+                Код: <b>@info.code</b>
             }
-            <div class="help-block">Ключевые слова: @info.keywords</div>
+            Ключевые слова: <b>@info.keywords</b>
         </div>
     }
 

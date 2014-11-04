@@ -15,14 +15,14 @@ object Access {
       u.projectId === projectId
         and u.userId === userId
         and u.userStatus === UserStatus.Admin
-    ).headOption match {
+    ).singleOption match {
       case Some(_) ⇒ None
       case None ⇒
         // If user doesn't have admin rights, check if anybody does. If all admins are gone then anyone could edit project.
         AppDB.userInProjectTable.where(u ⇒
           u.projectId === projectId
             and u.userStatus === UserStatus.Admin
-        ).headOption match {
+        ).singleOption match {
           // Some admin is found.
           case Some(_) ⇒ Some(s"Нет доступа к проекту [$projectId]")
           case None ⇒ None
@@ -52,7 +52,7 @@ object Access {
 
   def getInfoAccess(user: Option[User], projectId: Int): InfoAccess = inTransaction {
     val project = AppDB.projectTable.get(projectId)
-    val userInProject = user.flatMap(u ⇒ AppDB.userInProjectTable.where(uu ⇒ uu.userId === u.id and uu.projectId === projectId).headOption)
+    val userInProject = user.flatMap(u ⇒ AppDB.userInProjectTable.where(uu ⇒ uu.userId === u.id and uu.projectId === projectId).singleOption)
 
     val userHasAccessToProject = userInProject.exists(u ⇒ u.userStatus == UserStatus.Active || u.userStatus == UserStatus.Admin)
     val canView = project.projectType match {

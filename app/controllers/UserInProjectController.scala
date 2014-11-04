@@ -27,8 +27,8 @@ object UserInProjectController extends Controller {
   def addUser() = CommonAction.requireAnyUser { implicit request ⇒
     CommonAction.bindPost(tuple("projectId" → number, "email" → text)) { case (projectId, email) ⇒
       Access.require(Access.userIsAdminOfProject(projectId)) {
-        val user = AppDB.userTable.where(u ⇒ u.email === email).headOption.getOrElse(throw new NotFoundEx(s"Can't find user with email [$email]"))
-        AppDB.userInProjectTable.where(u ⇒ u.projectId === projectId and u.userId === user.id).headOption match {
+        val user = AppDB.userTable.where(u ⇒ u.email === email).singleOption.getOrElse(throw new NotFoundEx(s"Can't find user with email [$email]"))
+        AppDB.userInProjectTable.where(u ⇒ u.projectId === projectId and u.userId === user.id).singleOption match {
           case Some(uip) ⇒
           case None ⇒ AppDB.userInProjectTable.insert(UserInProject(user.id, projectId, UserStatus.Active))
         }
@@ -40,7 +40,7 @@ object UserInProjectController extends Controller {
   def changeUser() = CommonAction.requireAnyUser { implicit request ⇒
     CommonAction.bindPost(tuple("projectId" → number, "userId" → number, "status" → number)) { case (projectId, userId, status) ⇒
       Access.require(Access.userIsAdminOfProject(projectId)) {
-        AppDB.userInProjectTable.where(u ⇒ u.projectId === projectId and u.userId === userId).headOption match {
+        AppDB.userInProjectTable.where(u ⇒ u.projectId === projectId and u.userId === userId).singleOption match {
           case Some(uip) ⇒
             uip.userStatus = UserStatus(status)
             AppDB.userInProjectTable.update(uip)
@@ -54,7 +54,7 @@ object UserInProjectController extends Controller {
 
   def requestAccess() = CommonAction.requireAnyUser { implicit request ⇒
     CommonAction.bindPost(single("projectId" → number)) { case projectId ⇒
-      AppDB.userInProjectTable.where(u ⇒ u.projectId === projectId and u.userId === request.user.get.id).headOption match {
+      AppDB.userInProjectTable.where(u ⇒ u.projectId === projectId and u.userId === request.user.get.id).singleOption match {
         case Some(uip) ⇒
           Redirect(routes.ApplicationController.index()).flashing(s"Запрос на доступ уже добавлен, состояние ${uip.userStatus.toString}" → "warning")
         case None ⇒

@@ -1,0 +1,11 @@
+@(code: String)(implicit request: CommonRequest[_])
+
+@main() {
+    <div class="page-header">
+        <h1>Страница с кодом @code не найдена</h1>
+    </div>
+
+    @if(request.user.isDefined) {
+        <a href="@routes.InfoController.create(code)" class="btn btn-primary">Добавить страницу</a>
+    }
+}

@@ -33,12 +33,15 @@ object ApplicationController extends Controller {
     }
   }
 
-  def selectProject(projectId: Int) = CommonAction { request ⇒
-    from(AppDB.projectTable)(p ⇒ where(p.id === projectId) select p).headOption match {
-      case Some(project) ⇒ Redirect(routes.ApplicationController.index())
-        .withSession(request.session + ("projectId" → project.id.toString))
+  def selectProject(projectId: Int) = CommonAction { implicit request ⇒
+    AppDB.projectTable.lookup(projectId) match {
+      case Some(project) ⇒ selectProjectModifySession(Redirect(routes.ApplicationController.index()), project.id)
       case None ⇒ BadRequest(s"Can't find project with id = $projectId.")
     }
+  }
+
+  def selectProjectModifySession(result: SimpleResult, projectId: Int)(implicit request: Request[_]): SimpleResult = {
+    result.withSession(request.session + ("projectId" → projectId.toString))
   }
 
   def ddl = Action { implicit request ⇒

@@ -9,11 +9,11 @@ import system.DbDef._
 
 class LiUserService(app: Application) extends UserServicePlugin(app) {
   override def find(id: IdentityId): Option[Identity] = inTransaction {
-    from(AppDB.userTable)(u ⇒ where(u.providerId === id.providerId and u.providerUserId === id.userId) select u).headOption
+    from(AppDB.userTable)(u ⇒ where(u.providerId === id.providerId and u.providerUserId === id.userId) select u).singleOption
   }
 
   override def findByEmailAndProvider(email: String, providerId: String): Option[Identity] = inTransaction {
-    from(AppDB.userTable)(u ⇒ where(u.providerId === providerId and u.email === Some(email)) select u).headOption
+    from(AppDB.userTable)(u ⇒ where(u.providerId === providerId and u.email === Some(email)) select u).singleOption
   }
 
   override def deleteToken(uuid: String): Unit = inTransaction {
@@ -36,7 +36,7 @@ class LiUserService(app: Application) extends UserServicePlugin(app) {
       password = passwordInfo.map(_.password),
       salt = passwordInfo.flatMap(_.salt))
 
-    from(AppDB.userTable)(u ⇒ where(u.providerId === identityId.providerId and u.providerUserId === identityId.userId) select u).headOption match {
+    from(AppDB.userTable)(u ⇒ where(u.providerId === identityId.providerId and u.providerUserId === identityId.userId) select u).singleOption match {
       case None ⇒ AppDB.userTable.insert(appUser)
       case Some(u) ⇒
         AppDB.userTable.update(u.copy(
@@ -61,6 +61,6 @@ class LiUserService(app: Application) extends UserServicePlugin(app) {
   }
 
   override def findToken(token: String): Option[Token] = inTransaction {
-    from(AppDB.tokenTable)(t ⇒ where(t.uuid === token) select t).headOption
+    from(AppDB.tokenTable)(t ⇒ where(t.uuid === token) select t).singleOption
   }
 }

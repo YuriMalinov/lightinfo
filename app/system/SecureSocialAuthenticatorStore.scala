@@ -27,7 +27,7 @@ class SecureSocialAuthenticatorStore(implicit app: Application) extends Authenti
   override def find(id: String): Either[Error, Option[Authenticator]] = {
     Right(Cache.getAs[Authenticator](id).fold {
       inTransaction {
-        val a = from(AppDB.authenticatorTable)(a ⇒ where(a.id === id) select a).headOption.map { a ⇒
+        val a = from(AppDB.authenticatorTable)(a ⇒ where(a.id === id) select a).singleOption.map { a ⇒
           saveInCache(a.toAuthenticator)
         }
         a
