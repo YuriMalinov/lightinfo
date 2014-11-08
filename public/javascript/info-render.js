@@ -1,5 +1,5 @@
 function renderInfoJs(info, renderDev) {
-    var value = renderInfo(info);
+    var value = renderInfo(info, true);
     if (!renderDev) {
         var div = $("<div>").html(value);
         div.find('.dev-section').remove();
@@ -8,7 +8,7 @@ function renderInfoJs(info, renderDev) {
     return value;
 }
 
-function renderInfo(info) {
+function renderInfo(info, directHighlight) {
     var renderer = new marked.Renderer();
     renderer.image = function (href, title, text) {
         if (title) {
@@ -52,6 +52,14 @@ function renderInfo(info) {
         + '>\n';
         return html;
     };
+
+    if (directHighlight) {
+        marked.setOptions({
+            highlight: function (code, lang) {
+                return hljs.highlight(lang, code, true).value;
+            }
+        });
+    }
 
     var value = marked(info, {renderer: renderer});
     if (inDev) {

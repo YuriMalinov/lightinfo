@@ -11,7 +11,7 @@ import play.api.data.Forms._
 import play.api.http.{ContentTypeOf, Writeable}
 import play.api.libs.json.{JsString, JsObject}
 import play.api.mvc.{Action, AnyContent, Controller}
-import sun.org.mozilla.javascript.internal.Function
+import org.mozilla.javascript.JavaScriptException
 import system.DbDef._
 
 import scalax.file.Path
@@ -122,10 +122,18 @@ object InfoController extends Controller {
         }
 
         importJs("public/js/marked.js")
+        importJs("public/highlightjs/highlight.pack.js")
         importJs("public/javascript/info-render.js")
 
         val renderInfo = cx.evaluateString(scope, "renderInfo", "", 1, null).asInstanceOf[NativeFunction]
-        val renderResult = renderInfo.call(cx, scope, scope, Array(info.text, access.viewInternal: java.lang.Boolean)).asInstanceOf[String]
+        val renderResult = try {
+          renderInfo.call(cx, scope, scope, Array(info.text, false: java.lang.Boolean)).asInstanceOf[String]
+        } catch {
+          case e: JavaScriptException =>
+            val x = e // debug
+            println(e.getScriptStackTrace)
+            throw e
+        }
 
         val doc = Jsoup.parse(renderResult)
         doc.select(".dev-section").remove()

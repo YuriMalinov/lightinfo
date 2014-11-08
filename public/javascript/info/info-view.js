@@ -5,4 +5,6 @@ $(function() {
         delegate: 'a',
         gallery: {enabled: true}
     });
+
+    hljs.initHighlightingOnLoad();
 });
