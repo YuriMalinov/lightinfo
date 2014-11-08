@@ -2,7 +2,12 @@
 
 @main() {
     @if(request.commonData.projects.isEmpty) {
-        <a href="@routes.ProjectsController.create()" class="btn btn-default">Создать проект</a>
+        @if(request.user.isDefined) {
+            <a href="@routes.ProjectsController.create()" class="btn btn-default">Создать проект</a>
+        } else {
+            <h1>Шеф, всё пропало. Проектов нет, создать нельзя. <a href="@securesocial.controllers.routes.LoginPage.login()">Залогиньтесь</a> и можно будет сделать.</h1>
+        }
+        @{new java.util.Date()}
     } else {
         <h1 class="page-header">Выберите проект</h1>
         <table class="table table-hover table-striped">
