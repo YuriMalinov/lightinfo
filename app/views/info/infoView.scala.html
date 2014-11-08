@@ -1,4 +1,4 @@
-@(info: Info, project: Project, access: InfoAccess)(implicit request: CommonRequest[_])
+@(info: Info, project: Project, access: InfoAccess, renderResult: String)(implicit request: CommonRequest[_])
 
 @head() = {
     <link rel="stylesheet" href="@routes.Assets.at("css/info/info-edit.css")">
@@ -15,17 +15,8 @@
             @if(access.edit) {
                 @revisionControls(info.id, "view")
             }
-            </h1>
+        </h1>
     </div>
 
-    @if(access.edit) {
-        <div class="help-block">
-            @if(info.code.size > 0) {
-                Код: <b><a href="@routes.InfoController.viewInfoByCode(info.code, project.code)">@info.code</a></b>
-            }
-            Ключевые слова: <b>@info.keywords</b>
-        </div>
-    }
-
-    <div id="info" class="clearfix" data-view-internal="@access.viewInternal">@info.text</div>
+    <div id="info" class="clearfix">@Html(renderResult)</div>
 }

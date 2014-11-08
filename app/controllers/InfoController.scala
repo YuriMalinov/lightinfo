@@ -1,11 +1,17 @@
 package controllers
 
+import java.io.InputStreamReader
+
 import models._
+import org.jsoup.Jsoup
+import org.mozilla.javascript.{NativeFunction, Context}
+import play.api.Play
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.http.{ContentTypeOf, Writeable}
 import play.api.libs.json.{JsString, JsObject}
 import play.api.mvc.{Action, AnyContent, Controller}
+import sun.org.mozilla.javascript.internal.Function
 import system.DbDef._
 
 import scalax.file.Path
@@ -105,8 +111,29 @@ object InfoController extends Controller {
   def viewInfoImpl(info: Info)(implicit request: CommonRequest[AnyContent]) = {
     val access = Access.getInfoAccess(request.user, info.projectId)
     Access.require(access.view) {
-      // TODO: implement server side rendering when Internet would be available and Rhino could be downloaded.
-      Ok(views.html.info.infoView(info, info.project.single, access))
+      val cx = Context.enter()
+      try {
+        implicit val app = Play.current
+        val scope = cx.initStandardObjects()
+
+        def importJs(name: String): Unit = {
+          val reader = new InputStreamReader(Play.resourceAsStream(name).get, "utf-8")
+          cx.evaluateReader(scope, reader, name, 1, null)
+        }
+
+        importJs("public/js/marked.js")
+        importJs("public/javascript/info-render.js")
+
+        val renderInfo = cx.evaluateString(scope, "renderInfo", "", 1, null).asInstanceOf[NativeFunction]
+        val renderResult = renderInfo.call(cx, scope, scope, Array(info.text, access.viewInternal: java.lang.Boolean)).asInstanceOf[String]
+
+        val doc = Jsoup.parse(renderResult)
+        doc.select(".dev-section").remove()
+
+        Ok(views.html.info.infoView(info, info.project.single, access, doc.toString))
+      } finally {
+        Context.exit()
+      }
     }
   }
 

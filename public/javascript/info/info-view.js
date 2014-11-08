@@ -1,4 +1,8 @@
 $(function() {
     var $info = $('#info');
-    $info.html(renderInfo($info.html(), $info.attr('data-view-internal') == 'true'))
+    $info.magnificPopup({
+        type: 'image',
+        delegate: 'a',
+        gallery: {enabled: true}
+    });
 });

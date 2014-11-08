@@ -41,3 +41,28 @@
     position: relative;
     float: left;
 }
+
+
+body .mfp-bg {
+    opacity: 0.1;
+}
+
+body .mfp-title {
+    color: black;
+}
+
+body .mfp-bottom-bar {
+    background: white;
+    padding: 5px;
+    /*margin-top: -40px;*/
+    /*box-shadow: 0 0 8px rgba(0, 0, 0, 0.6);*/
+}
+
+body .mfp-counter {
+    top: 5px;
+    right: 5px;
+}
+
+.mfp-figure img {
+    z-index: 1046;
+}

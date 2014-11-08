@@ -36,7 +36,7 @@ $(function ($) {
     });
 
     function updatePreview() {
-        $preview.html(renderInfo($text.val(), true));
+        $preview.html(renderInfoJs($text.val(), true));
         $preview.height($text.height())
     }
 
@@ -47,6 +47,9 @@ $(function ($) {
             if (items) {
                 for (var i = 0; i < items.length; i++) {
                     if (items[i].type.indexOf("image") !== -1) {
+                        if (window.angularData.infoId == 0) {
+                            window.alert("Чтобы вставить изображение нужно хотя бы 1 раз сохранить запись.");
+                        }
                         var blob = items[i].getAsFile();
                         var form = new FormData();
                         form.append("data", blob);

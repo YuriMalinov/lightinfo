@@ -1,4 +1,14 @@
-function renderInfo(info, renderDev) {
+function renderInfoJs(info, renderDev) {
+    var value = renderInfo(info);
+    if (!renderDev) {
+        var div = $("<div>").html(value);
+        div.find('.dev-section').remove();
+        value = div.html();
+    }
+    return value;
+}
+
+function renderInfo(info) {
     var renderer = new marked.Renderer();
     renderer.image = function (href, title, text) {
         if (title) {
@@ -48,11 +58,7 @@ function renderInfo(info, renderDev) {
         value += "</div>";
     }
 
-    if (!renderDev) {
-        var div = $("<div>").html(value);
-        div.find('.dev-section').remove();
-        value = div.html();
-    }
 
     return value;
 }
+
