@@ -31,8 +31,8 @@ GET         /info/revisions                       controllers.InfoController.rev
 GET         /info/view-revision                   controllers.InfoController.viewRevision(revisionId: Int)
 POST        /info/restore-revision                controllers.InfoController.restoreRevision()
 
-GET         /page/:projectCode/*code              controllers.InfoController.viewInfoByCode(code: String, projectCode: String)
-GET         /page-check/:projectCode/*code        controllers.InfoController.checkInfoByCode(code: String, projectCode: String)
+GET         /view/:projectCode/*code              controllers.InfoController.viewInfoByCode(code: String, projectCode: String)
+GET         /view-check/:projectCode/*code        controllers.InfoController.checkInfoByCode(code: String, projectCode: String, callback: String)
 
 GET         /view/:infoId                         controllers.InfoController.viewInfo(infoId: Int)
 

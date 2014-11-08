@@ -4,7 +4,7 @@ import models._
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.http.{ContentTypeOf, Writeable}
-import play.api.libs.json.JsBoolean
+import play.api.libs.json.{JsString, JsObject}
 import play.api.mvc.{Action, AnyContent, Controller}
 import system.DbDef._
 
@@ -106,7 +106,7 @@ object InfoController extends Controller {
     val access = Access.getInfoAccess(request.user, info.projectId)
     Access.require(access.view) {
       // TODO: implement server side rendering when Internet would be available and Rhino could be downloaded.
-      Ok(views.html.info.infoView(info, access))
+      Ok(views.html.info.infoView(info, info.project.single, access))
     }
   }
 
@@ -126,19 +126,26 @@ object InfoController extends Controller {
     AppDB.projectTable.where(p ⇒ p.code === projectCode).singleOption.getOrElse(throw NotFoundEx(s"Can't find project with code $projectCode"))
   }
 
-  def checkInfoByCode(code: String, projectCode: String) = Action {
+  def checkInfoByCode(code: String, projectCode: String, callback: String) = CommonAction.withUser { implicit request ⇒
     val project = findProjectByCode(projectCode)
     inTransaction {
-      Ok(AppDB.infoTable.where(i ⇒ i.code === code and i.projectId === project.id).singleOption match {
-        case Some(info) ⇒ JsBoolean(value = true)
-        case None ⇒ JsBoolean(value = false)
-      })
+      val access = Access.getInfoAccess(request.user, project.id)
+
+      val result = callback + "(\"" + JsObject(Seq(
+        "result" → JsString(
+          AppDB.infoTable.where(i ⇒ i.code === code and i.projectId === project.id).singleOption match {
+            case Some(info) ⇒ "exists"
+            case None ⇒ if (access.edit) "can-create" else "none"
+          }),
+        "route" → JsString(routes.InfoController.create(code).absoluteURL())
+      )) + "\")"
+      Ok(result)
     }
   }
 
   def revisions(infoId: Int, page: Int, pageSize: Int) = CommonAction.requireAnyUser { implicit request ⇒
     val info = AppDB.infoTable.lookup404(infoId)
-    Access.require(Access.getInfoAccess(infoId).edit) {
+    Access.require(Access.getInfoAccess(info.projectId).edit) {
       val revisionPage = selectPage(from(AppDB.infoRevisionTable, AppDB.userTable)((r, u) ⇒
         where(u.id === r.userId and r.infoId === infoId)
           select ((u, r))
@@ -150,7 +157,7 @@ object InfoController extends Controller {
 
   def viewRevision(revisionId: Int) = CommonAction.requireAnyUser { implicit request ⇒
     val revision = AppDB.infoRevisionTable.lookup404(revisionId)
-    Access.require(Access.getInfoAccess(revision.infoId).edit, "No access to info") {
+    Access.require(Access.getInfoAccess(revision.info.single.projectId).edit, "No access to info") {
       val previous = from(AppDB.infoRevisionTable)(r ⇒ where(r.infoId === revision.infoId and r.revisionDate < revision.revisionDate) select r orderBy r.id.desc).singleOption
 
       def revData(rev: InfoRevision) = InfoRevisionData(

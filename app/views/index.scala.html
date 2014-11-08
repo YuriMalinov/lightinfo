@@ -1,6 +1,12 @@
 @(infoDisplays: Iterable[InfoDisplay], access: InfoAccess)(implicit request: CommonRequest[_])
 
-@main() {
+@searchPanel() = {
+    <form class="navbar-form navbar-left">
+        <input type="text" class="form-control col-lg-8" placeholder="Search">
+    </form>
+}
+
+@main(searchPanel = searchPanel()) {
     @request.commonData.currentProject.map { project =>
         <script src="@routes.Assets.at("javascript/index.js")" type="text/javascript"></script>
         <h1 class="page-header">@project.name
@@ -16,8 +22,8 @@
         </h1>
         <div class="list-group">
         @infoDisplays.map { info =>
-            <a href="@routes.InfoController.viewInfo(info.id)" class="list-group-item"
-            style="padding-left : @(10 + 10 * info.level + "px")">
+            <a href="@routes.InfoController.viewInfoByCode(info.code, project.code)" class="list-group-item"
+            style="padding-left : @(10 + 10 * info.level + "px")" data-keywords="@info.keywords">
                 @info.name
                 <span class="badge badge-info">@info.childrenCount</span>
             </a>

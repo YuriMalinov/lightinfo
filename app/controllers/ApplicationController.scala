@@ -6,7 +6,7 @@ import system.DbDef._
 
 import scala.collection.mutable.ArrayBuffer
 
-case class InfoDisplay(id: Int, name: String, level: Int, childrenCount: Int)
+case class InfoDisplay(id: Int, name: String, code: String, keywords: String, level: Int, childrenCount: Int)
 
 object ApplicationController extends Controller {
   def index = CommonAction { implicit request ⇒
@@ -24,7 +24,7 @@ object ApplicationController extends Controller {
         }
 
         def subList(info: Info, level: Int, noRecursion: Set[Int]): List[InfoDisplay] = {
-          List(InfoDisplay(info.id, info.name, level, info.childrenCount)) ++ data.getOrElse(info.id, Nil)
+          List(InfoDisplay(info.id, info.name, info.code, info.keywords, level, info.childrenCount)) ++ data.getOrElse(info.id, Nil)
             .flatMap(i ⇒ if (noRecursion.contains(info.id)) Nil else subList(i, level + 1, noRecursion + info.id))
         }
 

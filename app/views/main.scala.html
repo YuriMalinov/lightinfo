@@ -3,7 +3,8 @@
         endBody: Html = null,
         fluid: Boolean = false,
         head: Html = null,
-        displayFlash: Boolean = true
+        displayFlash: Boolean = true,
+        searchPanel: Html = Html("")
         )(content: Html)(implicit request: CommonRequest[_])
 
 @import play.api.templates.Html
@@ -49,9 +50,7 @@
                     </li>
                     <li></li>
                 </ul>
-                <form class="navbar-form navbar-left">
-                    <input type="text" class="form-control col-lg-8" placeholder="Search">
-                </form>
+                @searchPanel
                 <ul class="nav navbar-nav navbar-right">
                     @request.user match {
                         case None => {

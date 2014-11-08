@@ -10,7 +10,9 @@ import scala.concurrent.Future
 
 case class CommonData(projects: Seq[Project], currentProject: Option[Project])
 
-class CommonRequest[A](val commonData: CommonData, val user: Option[User], request: Request[A]) extends WrappedRequest[A](request)
+class RequestWithUser[A](val user: Option[User], request: Request[A]) extends WrappedRequest[A](request)
+
+class CommonRequest[A](val commonData: CommonData, user: Option[User], request: Request[A]) extends RequestWithUser[A](user, request)
 
 object CommonRequest {
   implicit def requestToCommonRequest[A](request: Request[A]): CommonRequest[A] = {
@@ -70,6 +72,13 @@ object CommonAction extends ActionBuilder[CommonRequest] {
         block(request)
       }
     }
+  }
+
+  def withUser(block: RequestWithUser[AnyContent] ⇒ Result): Action[AnyContent] = Action { request ⇒
+    val user = SecureSocial.authenticatorFromRequest(request)
+      .flatMap(auth ⇒ UserService.find(auth.identityId)).asInstanceOf[Option[User]]
+
+    block(new RequestWithUser[AnyContent](user, request))
   }
 
   def requireProjectAdmin(projectId: Option[Int])(block: CommonRequest[AnyContent] ⇒ Result) = requireUser(u ⇒ Access.userIsAdminOfProject(u, projectId))(block)

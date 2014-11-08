@@ -29,6 +29,8 @@ case class Info(var projectId: Int, var parentInfoId: Option[Int], var name: Str
 
   def this() = this(0, Some(0), "", "", "", "")
 
+  def project = AppDB.projectToInfo.right(this)
+
   def makeRevision(userId: Int) = InfoRevision(
     infoId = id,
     projectId = projectId,
