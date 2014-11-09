@@ -135,10 +135,15 @@ object InfoController extends Controller {
             throw e
         }
 
-        val doc = Jsoup.parse(renderResult)
-        doc.select(".dev-section").remove()
+        val htmlResult = if (access.viewInternal) {
+          renderResult
+        } else {
+          val doc = Jsoup.parse(renderResult)
+          doc.select(".dev-section").remove()
+          doc.toString
+        }
 
-        Ok(views.html.info.infoView(info, info.project.single, access, doc.toString))
+        Ok(views.html.info.infoView(info, info.project.single, access, htmlResult))
       } finally {
         Context.exit()
       }

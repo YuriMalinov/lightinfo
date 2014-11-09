@@ -13,25 +13,6 @@ case class InfoDisplay(id: Int, name: String, code: String, keywords: String, le
 
 object ApplicationController extends Controller {
   def index = CommonAction { implicit request ⇒
-
-    val cal = Calendar.getInstance(TimeZone.getTimeZone("Europe/Moscow"));
-    val df = DateFormat.getDateTimeInstance(DateFormat.FULL, DateFormat.FULL, Locale.US);
-    df.setCalendar(cal);
-
-    cal.setTimeInMillis(1409067890L * 1000L);
-    if (!df.format(cal.getTime()).equals("Tuesday, August 26, 2014 7:44:50 PM MSK")) {
-      System.out.println("FAIL! Wrong TZ BEFORE 26 Oct 2014!");
-      System.exit(1);
-    }
-
-    cal.setTimeInMillis(1416667890L * 1000L);
-    if (!df.format(cal.getTime()).equals("Saturday, November 22, 2014 5:51:30 PM MSK")) {
-      System.out.println("FAIL! Wrong TZ AFTER 26 Oct 2014!");
-      System.exit(2);
-    }
-
-    System.out.println("OK");
-
     request.commonData.currentProject match {
       case None ⇒
         Ok(views.html.indexWithoutProject())

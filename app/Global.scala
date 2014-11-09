@@ -21,9 +21,11 @@ object Global extends GlobalSettings {
     }
   }
 
-  def getSession(adapter:DatabaseAdapter, app: Application) = {
+  def getSession(adapter: DatabaseAdapter, app: Application) = {
     val session = Session.create(DB.getConnection()(app), adapter)
-    session.setLogger(println)
+    if (app.configuration.getBoolean("squeryl.trace").getOrElse(false)) {
+      session.setLogger(println)
+    }
     session
   }
 
