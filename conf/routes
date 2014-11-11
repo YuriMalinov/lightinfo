@@ -23,8 +23,10 @@ POST        /projects/users/requestAccess         controllers.UserInProjectContr
 
 GET         /info/create                          controllers.InfoController.create(code: String ?= "")
 POST        /info/create-save                     controllers.InfoController.createSave()
+POST        /info/create-save-ajax                controllers.InfoController.createSaveAjax()
 GET         /info/edit                            controllers.InfoController.edit(id: Int)
 POST        /info/edit-save                       controllers.InfoController.editSave(id: Int)
+POST        /info/edit-save-ajax                  controllers.InfoController.editSaveAjax(id: Int)
 POST        /info/upload-image                    controllers.InfoController.uploadImage(infoId: Int)
 GET         /image/:infoId/:imageId               controllers.InfoController.getImage(infoId: Int, imageId: Long)
 GET         /info/revisions                       controllers.InfoController.revisions(infoId: Int, page: Int ?= 0, pageSize: Int ?= 100)

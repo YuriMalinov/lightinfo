@@ -27,6 +27,15 @@
         }</h1>
     </div>
 
+    <div id="success-message" class="alert alert-success">
+        <b>Запись успешно сохранена</b>
+    </div>
+
+    <div id="error-message" class="alert alert-danger">
+        <button type="button" class="close">×</button>
+        <b>Ошибки при сохранении:</b> <span id="error-messages"></span>
+    </div>
+
     <script type="text/javascript">
     window.angularData = { } ;
     window.angularData.info = @Html(Json.toJson(info).toString());
@@ -36,7 +45,7 @@
     <div ng-app="InfoEdit" ng-controller="InfoEditController as c">
     @helper.form(
         if(info.id != 0) routes.InfoController.editSave(info.id)
-        else routes.InfoController.createSave(), 'class → "form-horizontal"
+        else routes.InfoController.createSave(), 'class → "form-horizontal", 'id → "edit-form"
     ) {
         <div class="panel panel-default">
             <div class="panel-heading">Общая информация

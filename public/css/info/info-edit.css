@@ -3,3 +3,13 @@
     padding: 10px;
     overflow-y: auto;
 }
+
+#error-message, #success-message {
+    position: fixed;
+    z-index: 10;
+    left: 100px;
+    right: 100px;
+    top: 50px;
+
+    display: none;
+}

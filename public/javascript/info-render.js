@@ -56,7 +56,11 @@ function renderInfo(info, directHighlight) {
     if (directHighlight) {
         marked.setOptions({
             highlight: function (code, lang) {
-                return hljs.highlight(lang, code, true).value;
+                try {
+                    return hljs.highlight(lang, code, true).value;
+                } catch (e) {
+                    return code;
+                }
             }
         });
     }

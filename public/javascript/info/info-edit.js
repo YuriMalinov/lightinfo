@@ -3,6 +3,8 @@ $(function ($) {
     var timer;
     var $text = $('#text');
     var $preview = $('#preview');
+    //noinspection JSUnresolvedVariable
+    var infoId = window.angularData.infoId;
 
     updatePreview();
 
@@ -28,6 +30,39 @@ $(function ($) {
         timer = setTimeout(updatePreview, 500);
     });
 
+    $text.keydown(function(e) {
+        if (e.ctrlKey && !e.shiftKey && !e.altKey && e.keyCode == 83) {
+            // Save
+            $.ajax({
+                url: infoId == 0 ? "/info/create-save-ajax" : ("/info/edit-save-ajax?id=" + infoId),
+                type: "post",
+                data: $('#edit-form').serializeArray()
+            }).done(function (result) {
+                if (result.result == "OK") {
+                    infoId = result.id;
+                    $('#success-message').fadeIn();
+                    setTimeout(function() {
+                        $('#success-message').fadeOut();
+                    }, 1000);
+                } else {
+                    var errors = '';
+                    for (var name in result.errors) {
+                        errors += "<br/>";
+                        //noinspection JSUnfilteredForInLoop
+                        errors += name + ": " + result.errors[name].join(", ");
+                    }
+                    $('#error-messages').html(errors);
+                    $('#error-message').fadeIn();
+                    // No fadeout
+                }
+            });
+            e.preventDefault();
+        }
+    });
+
+    $('#error-message').find('.close').click(function() {
+        $('#error-message').fadeOut();
+    });
 
     $preview.magnificPopup({
         type: 'image',
@@ -47,7 +82,7 @@ $(function ($) {
             if (items) {
                 for (var i = 0; i < items.length; i++) {
                     if (items[i].type.indexOf("image") !== -1) {
-                        if (window.angularData.infoId == 0) {
+                        if (infoId == 0) {
                             window.alert("Чтобы вставить изображение нужно хотя бы 1 раз сохранить запись.");
                         }
                         var blob = items[i].getAsFile();
@@ -55,7 +90,8 @@ $(function ($) {
                         form.append("data", blob);
 
                         $.ajax({
-                            url: '/info/upload-image?infoId=' + window.angularData.infoId,
+                            // TODO: use Play Framework JavaScript router
+                            url: '/info/upload-image?infoId=' + infoId,
                             type: 'POST',
                             data: form,
                             processData: false,

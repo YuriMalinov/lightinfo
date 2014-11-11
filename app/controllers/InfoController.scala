@@ -4,14 +4,13 @@ import java.io.InputStreamReader
 
 import models._
 import org.jsoup.Jsoup
-import org.mozilla.javascript.{NativeFunction, Context}
+import org.mozilla.javascript.{Context, JavaScriptException, NativeFunction}
 import play.api.Play
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.http.{ContentTypeOf, Writeable}
-import play.api.libs.json.{JsString, JsObject}
+import play.api.libs.json.{JsNumber, JsObject, JsString}
 import play.api.mvc.{Action, AnyContent, Controller}
-import org.mozilla.javascript.JavaScriptException
 import system.DbDef._
 
 import scalax.file.Path
@@ -32,15 +31,19 @@ object InfoController extends Controller {
     )(InfoData.apply)(InfoData.unapply)
   )
 
-  def create(code: String = "") = editImpl(None, save = false, code)
+  def create(code: String = "") = editImpl(None, save = false)
 
   def createSave() = editImpl(None, save = true)
+
+  def createSaveAjax() = editImpl(None, save = true, ajax = true)
 
   def edit(id: Int) = editImpl(Some(id), save = false)
 
   def editSave(id: Int) = editImpl(Some(id), save = true)
 
-  private def editImpl(id: Option[Int], save: Boolean, code: String = ""): Action[AnyContent] = CommonAction.requireAnyUser { implicit request ⇒
+  def editSaveAjax(id: Int) = editImpl(Some(id), save = true, ajax = true)
+
+  private def editImpl(id: Option[Int], save: Boolean, code: String = "", ajax: Boolean = false): Action[AnyContent] = CommonAction.requireAnyUser { implicit request ⇒
     val info = id match {
       case Some(infoId) ⇒ AppDB.infoTable.lookup(infoId).getOrElse(throw NotFoundEx(s"Can't find info with id = $infoId"))
       case None ⇒ Info(
@@ -70,9 +73,23 @@ object InfoController extends Controller {
 
         AppDB.infoRevisionTable.insert(saved.makeRevision(request.user.get.id))
 
-        Redirect(routes.InfoController.edit(saved.id)).flashing("Успешно сохранено" → "success")
+        if (ajax) {
+          Ok(JsObject(Seq(
+            "result" → JsString("OK"),
+            "id" → JsNumber(saved.id)
+          )))
+        } else {
+          Redirect(routes.InfoController.edit(saved.id)).flashing("Успешно сохранено" → "success")
+        }
       } else {
-        Ok(views.html.info.infoEdit(form, info))
+        if (ajax) {
+          Ok(JsObject(Seq(
+            "result" → JsString("ERROR"),
+            "errors" → form.errorsAsJson
+          )))
+        } else {
+          Ok(views.html.info.infoEdit(form, info))
+        }
       }
     }
   }
@@ -198,7 +215,7 @@ object InfoController extends Controller {
   def viewRevision(revisionId: Int) = CommonAction.requireAnyUser { implicit request ⇒
     val revision = AppDB.infoRevisionTable.lookup404(revisionId)
     Access.require(Access.getInfoAccess(revision.info.single.projectId).edit, "No access to info") {
-      val previous = from(AppDB.infoRevisionTable)(r ⇒ where(r.infoId === revision.infoId and r.revisionDate < revision.revisionDate) select r orderBy r.id.desc).singleOption
+      val previous = from(AppDB.infoRevisionTable)(r ⇒ where(r.infoId === revision.infoId and r.revisionDate < revision.revisionDate) select r orderBy r.id.desc).page(0, 1).singleOption
 
       def revData(rev: InfoRevision) = InfoRevisionData(
         rev = rev,
