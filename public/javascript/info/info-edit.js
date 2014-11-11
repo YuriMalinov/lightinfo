@@ -72,7 +72,7 @@ $(function ($) {
 
     function updatePreview() {
         $preview.html(renderInfoJs($text.val(), true));
-        $preview.height($text.height())
+        $('#preview-block').height($text.height())
     }
 
     window.addEventListener("paste", pasteHandler);

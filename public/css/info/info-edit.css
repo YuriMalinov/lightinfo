@@ -1,7 +1,11 @@
-#preview {
+#preview-block {
     background: white;
     padding: 10px;
     overflow-y: auto;
+}
+
+#preview-footer {
+    height: 300px;
 }
 
 #error-message, #success-message {
