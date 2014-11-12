@@ -15,22 +15,11 @@ import system.DbDef._
 
 import scalax.file.Path
 
-case class InfoData(parentInfoId: Int, name: String, keywords: String, text: String, code: String, isPrivate: Boolean)
+case class InfoData(parentInfoId: Int, name: String, keywords: String, text: String, code: Option[String], isPrivate: Boolean)
 
 case class InfoRevisionData(rev: InfoRevision, user: User, parentInfo: Option[Info])
 
 object InfoController extends Controller {
-  val infoForm = Form(
-    mapping(
-      "parentInfoId" → number,
-      "name" → nonEmptyText,
-      "keywords" → text,
-      "text" → text,
-      "code" → text,
-      "isPrivate" → boolean
-    )(InfoData.apply)(InfoData.unapply)
-  )
-
   def create(code: String = "") = editImpl(None, save = false)
 
   def createSave() = editImpl(None, save = true)
@@ -48,9 +37,21 @@ object InfoController extends Controller {
       case Some(infoId) ⇒ AppDB.infoTable.lookup(infoId).getOrElse(throw NotFoundEx(s"Can't find info with id = $infoId"))
       case None ⇒ Info(
         projectId = request.commonData.currentProject.getOrElse(throw NotFoundEx("Current project is not set. Go to main page.")).id,
-        None, "", "", code, "", 0, isPrivate = false
+        None, "", "", if (code.isEmpty) None else Some(code), "", 0, isPrivate = false
       )
     }
+
+    val infoForm = Form(
+      mapping(
+        "parentInfoId" → number,
+        "name" → nonEmptyText,
+        "keywords" → text,
+        "text" → text,
+        "code" → optional(text verifying("Код должен быть уникальным", code ⇒ AppDB.infoTable.where(i ⇒ i.projectId === info.projectId and i.code === code or i.id === id).isEmpty)),
+        "isPrivate" → boolean
+      )(InfoData.apply)(InfoData.unapply)
+    )
+
 
     Access.require(Access.getInfoAccess(request.user, info.projectId).edit, "No access to info create/edit") {
       val data = InfoData(info.parentInfoId.getOrElse(0), info.name, info.keywords, info.text, info.code, info.isPrivate)

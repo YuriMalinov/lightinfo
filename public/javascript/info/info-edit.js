@@ -135,7 +135,7 @@ $.fn.extend({
 
 var InfoEdit = angular.module('InfoEdit', []);
 InfoEdit.controller('InfoEditController', function () {
-    this.showCommon = window.angularData.infoId == 0;
+    this.showCommon = window.angularData.infoId == 0 || window.angularData.hasErrors;
 });
 
 

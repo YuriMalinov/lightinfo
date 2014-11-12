@@ -9,7 +9,7 @@ import system.DbDef._
 
 import scala.collection.mutable.ArrayBuffer
 
-case class InfoDisplay(id: Int, name: String, code: String, keywords: String, level: Int, childrenCount: Int)
+case class InfoDisplay(id: Int, name: String, code: Option[String], keywords: String, level: Int, childrenCount: Int)
 
 object ApplicationController extends Controller {
   def index = CommonAction { implicit request ⇒

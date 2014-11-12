@@ -40,6 +40,7 @@
     window.angularData = { } ;
     window.angularData.info = @Html(Json.toJson(info).toString());
     window.angularData.infoId = @Html(info.id.toString);
+    window.angularData.hasErrors = @Html(form.hasErrors.toString);
     </script>
 
     <div ng-app="InfoEdit" ng-controller="InfoEditController as c">
