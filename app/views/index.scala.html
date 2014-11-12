@@ -14,7 +14,7 @@
                 <a href="@routes.InfoController.create()" class="btn btn-default">Добавить</a>
             }
             @if(!access.edit && access.isLoggedIn && project.allowRequestForAccess) {
-                <form action="@routes.UserInProjectController.requestAccess()" style="display: inline" method="post">
+                <form action="@routes.UserInProjectController.requestAccess()" style="display : inline" method="post">
                     <input type="hidden" name="projectId" value="@project.id">
                     <input type="submit" value="Запросить доступ к проекту" class="btn btn-info">
                 </form>
@@ -22,8 +22,10 @@
         </h1>
         <div class="list-group">
         @infoDisplays.map { info =>
-            <a href="@routes.InfoController.viewInfoByCode(info.code, project.code)" class="list-group-item"
-            style="padding-left : @(10 + 10 * info.level + "px")" data-keywords="@info.keywords">
+            <a href="@(
+                    if(!info.code.isEmpty && !project.code.isEmpty) routes.InfoController.viewInfoByCode(info.code, project.code)
+                    else routes.InfoController.viewInfo(info.id))"
+            class="list-group-item" style="padding-left : @(10 + 10 * info.level + "px")" data-keywords="@info.keywords">
                 @info.name
                 <span class="badge badge-info">@info.childrenCount</span>
             </a>
