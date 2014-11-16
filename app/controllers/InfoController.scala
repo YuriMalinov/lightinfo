@@ -89,7 +89,7 @@ object InfoController extends Controller {
             "errors" → form.errorsAsJson
           )))
         } else {
-          Ok(views.html.info.infoEdit(form, info))
+          Ok(views.html.info.infoEdit(form, info, ("0" → "Нет") +: Info.findByProject(info.projectId).filter(_.id != info.id).map(i ⇒ i.id.toString → i.name)))
         }
       }
     }

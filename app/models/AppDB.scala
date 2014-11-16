@@ -54,6 +54,10 @@ case class Info(var projectId: Int, var parentInfoId: Option[Int], var name: Str
   }
 }
 
+object Info {
+  def findByProject(projectId: Int) = from(AppDB.infoTable)(i ⇒ where(i.projectId === projectId) select i orderBy i.name).toSeq
+}
+
 case class InfoImage(infoId: Int, data: Array[Byte], contentType: String) extends KeyedEntity[Long] {
   val id: Long = (Math.random() * Long.MaxValue).toLong
 }

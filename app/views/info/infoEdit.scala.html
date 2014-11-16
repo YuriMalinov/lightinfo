@@ -1,4 +1,4 @@
-@(form: Form[InfoData], info: Info)(implicit request: CommonRequest[_])
+@(form: Form[InfoData], info: Info, parentInfoVariants: Seq[(String, String)])(implicit request: CommonRequest[_])
 @import play.api.libs.json.Json
 @import views.html.helper.FieldConstructor
 @implicitFieldConstructor = @{
@@ -59,7 +59,7 @@
                     @helper.inputText(form("keywords"), 'class → "form-control", '_label → "Ключевые слова")
                     @helper.inputText(form("code"), '_label → "Код", '_help → "Используется для ссылок на страницы, например, с привязкой к урлам другого проекта.")
                     @helper.checkbox(form("isPrivate"), '_label → "Скрытое", '_help → "Доступно только пользователям, имеющим доступ на редактирование.")
-                    @helper.inputText(form("parentInfoId"), '_label → "Папка")
+                    @helper.select(form("parentInfoId"), parentInfoVariants, '_label → "Папка")
                 </fieldset>
             </div>
         </div>

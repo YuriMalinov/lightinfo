@@ -24,32 +24,33 @@ function renderInfo(info, directHighlight) {
         }
     };
 
-    var inDev = false;
-    renderer.heading = function (text, level, raw) {
-        var html = '';
-        if (inDev !== false && inDev >= level) {
-            // Close it
-            html += "</div>";
-            inDev = false;
-        }
+    var openHeaders = {};
 
-        if (text.indexOf('(dev)') != -1 || text.indexOf('(дев)') != -1) {
-            if (inDev === false) {
-                html += '<div class="dev-section">';
-                text += ' <span class="badge badge-important">dev</span>';
-                inDev = level;
+    function cleanupHeaders(level, html) {
+        for (var openLevel in openHeaders) {
+            if (openHeaders.hasOwnProperty(openLevel) && openHeaders[openLevel] && openLevel >= level) {
+                html += '</div>';
+                openHeaders[openLevel] = false;
             }
         }
-        html += '<h'
-        + level
-        + ' id="'
-        + this.options.headerPrefix
-        + raw.toLowerCase().replace(/[^\w]+/g, '-')
-        + '">'
+        return html;
+    }
+
+    renderer.heading = function (text, level, raw) {
+        var anchorName = transliterate(text).replace(/[^\w\d]/g, '-');
+        var className = '';
+        var html = cleanupHeaders(level, '');
+        openHeaders[level] = true;
+
+        if (text.indexOf('(dev)') != -1 || text.indexOf('(дев)') != -1) {
+            className = 'dev-section';
+            text += ' <span class="badge badge-important">dev</span>';
+        }
+        html += '<div class="' + className + '" id="' + anchorName + '">' +
+        '<a name="' + anchorName + '"></a>' +
+        '<h' + level + ' id="' + this.options.headerPrefix + '-' + anchorName + '" data-target="' + anchorName + '">'
         + text
-        + '</h'
-        + level
-        + '>\n';
+        + '</h' + level + '>\n';
         return html;
     };
 
@@ -66,11 +67,87 @@ function renderInfo(info, directHighlight) {
     }
 
     var value = marked(info, {renderer: renderer});
-    if (inDev) {
-        value += "</div>";
-    }
-
+    value = cleanupHeaders(0, value);
 
     return value;
 }
 
+function transliterate(word) {
+    var A = {};
+    var result = '';
+
+    A["Ё"] = "YO";
+    A["Й"] = "I";
+    A["Ц"] = "TS";
+    A["У"] = "U";
+    A["К"] = "K";
+    A["Е"] = "E";
+    A["Н"] = "N";
+    A["Г"] = "G";
+    A["Ш"] = "SH";
+    A["Щ"] = "SCH";
+    A["З"] = "Z";
+    A["Х"] = "H";
+    A["Ъ"] = "'";
+    A["ё"] = "yo";
+    A["й"] = "i";
+    A["ц"] = "ts";
+    A["у"] = "u";
+    A["к"] = "k";
+    A["е"] = "e";
+    A["н"] = "n";
+    A["г"] = "g";
+    A["ш"] = "sh";
+    A["щ"] = "sch";
+    A["з"] = "z";
+    A["х"] = "h";
+    A["ъ"] = "'";
+    A["Ф"] = "F";
+    A["Ы"] = "I";
+    A["В"] = "V";
+    A["А"] = "A";
+    A["П"] = "P";
+    A["Р"] = "R";
+    A["О"] = "O";
+    A["Л"] = "L";
+    A["Д"] = "D";
+    A["Ж"] = "ZH";
+    A["Э"] = "E";
+    A["ф"] = "f";
+    A["ы"] = "i";
+    A["в"] = "v";
+    A["а"] = "a";
+    A["п"] = "p";
+    A["р"] = "r";
+    A["о"] = "o";
+    A["л"] = "l";
+    A["д"] = "d";
+    A["ж"] = "zh";
+    A["э"] = "e";
+    A["Я"] = "YA";
+    A["Ч"] = "CH";
+    A["С"] = "S";
+    A["М"] = "M";
+    A["И"] = "I";
+    A["Т"] = "T";
+    A["Ь"] = "'";
+    A["Б"] = "B";
+    A["Ю"] = "YU";
+    A["я"] = "ya";
+    A["ч"] = "ch";
+    A["с"] = "s";
+    A["м"] = "m";
+    A["и"] = "i";
+    A["т"] = "t";
+    A["ь"] = "'";
+    A["б"] = "b";
+    A["ю"] = "yu";
+
+    for (var i = 0; i < word.length; i++) {
+        var c = word.charAt(i);
+
+        result += A[c] || c;
+    }
+
+    return result;
+}

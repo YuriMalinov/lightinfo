@@ -66,3 +66,29 @@ body .mfp-counter {
 .mfp-figure img {
     z-index: 1046;
 }
+
+body {
+    position: relative;
+}
+
+.nav .nav {
+    padding-left: 10px;
+}
+
+#sidebar .nav li > a {
+    padding: 3px 5px;
+}
+
+#sidebar-container {
+    position: relative;
+}
+
+#sidebar.stick {
+    position: fixed;
+    top: 0;
+    width: 263px;
+}
+
+#sidebar .nav li.active > a {
+    border-left: 2px solid #007196;
+}
