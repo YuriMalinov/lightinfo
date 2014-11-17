@@ -18,10 +18,37 @@ function renderInfo(info, directHighlight) {
             } else {
                 size = 'width="' + size[0] + '"';
             }
-            return '<a href="' + href + '" title="' + text + '"><img src="' + href + '" alt="' + text + '"' + size + '/></a>';
+            return '<a href="' + href + '" title="' + text + '" class="image"><img src="' + href + '" alt="' + text + '"' + size + '/></a>';
         } else {
             return '<img src="' + href + '" alt="' + text + '">';
         }
+    };
+
+    // Цельнотянуто с marked + правки
+    renderer.link = function(href, title, text) {
+        if (this.options.sanitize) {
+            try {
+                var prot = decodeURIComponent(unescape(href))
+                    .replace(/[^\w:]/g, '')
+                    .toLowerCase();
+            } catch (e) {
+                return '';
+            }
+            if (prot.indexOf('javascript:') === 0) {
+                return '';
+            }
+        }
+        var out = '<a href="' + href + '"';
+
+        if (href.match(/^http(s)?:/) || title.indexOf('(blank)') != -1) {
+            out += ' target="_blank"';
+        }
+
+        if (title) {
+            out += ' title="' + title + '"';
+        }
+        out += '>' + text + '</a>';
+        return out;
     };
 
     var openHeaders = {};

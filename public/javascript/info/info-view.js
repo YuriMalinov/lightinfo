@@ -2,7 +2,7 @@ $(function() {
     var $info = $('#info');
     $info.magnificPopup({
         type: 'image',
-        delegate: 'a',
+        delegate: 'a.image',
         gallery: {enabled: true}
     });
 

@@ -66,7 +66,7 @@ $(function ($) {
 
     $preview.magnificPopup({
         type: 'image',
-        delegate: 'a',
+        delegate: 'a.image',
         gallery: {enabled: true}
     });
 
