@@ -47,7 +47,7 @@ object Access {
 
   def getInfoAccess(infoId: Int)(implicit request: CommonRequest[_]): InfoAccess = {
     val info = AppDB.infoTable.lookup(infoId).getOrElse(throw NotFoundEx(s"Can't find info with id = $infoId"))
-    getInfoAccess(request.user, infoId)
+    getInfoAccess(request.user, info.projectId)
   }
 
   def getInfoAccess(user: Option[User], projectId: Int): InfoAccess = inTransaction {

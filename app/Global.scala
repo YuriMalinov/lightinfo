@@ -30,7 +30,7 @@ object Global extends GlobalSettings {
   }
 
   override def onError(request: RequestHeader, ex: Throwable): Future[SimpleResult] = {
-    ex.getCause match {
+    ex match {
       case NotFoundEx(message) ⇒ Future.successful(ApplicationController.NotFound(message))
       case BadRequestEx(message) ⇒ Future.successful(ApplicationController.BadRequest(message))
       case ForbiddenEx(message) ⇒ Future.successful(ApplicationController.Forbidden(message))

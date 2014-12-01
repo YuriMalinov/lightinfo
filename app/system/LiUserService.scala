@@ -1,10 +1,11 @@
 package system
 
-import models.{User, AppDB}
+import controllers.ForbiddenEx
+import models.{AppDB, User}
 import org.joda.time.DateTime
-import play.api.{Plugin, Application}
+import play.api.{Play, Application}
 import securesocial.core.providers.Token
-import securesocial.core.{UserServicePlugin, Identity, IdentityId, UserService}
+import securesocial.core.{Identity, IdentityId, UserServicePlugin}
 import system.DbDef._
 
 class LiUserService(app: Application) extends UserServicePlugin(app) {
@@ -23,6 +24,11 @@ class LiUserService(app: Application) extends UserServicePlugin(app) {
   override def save(user: Identity): Identity = inTransaction {
     val identityId = user.identityId
     val passwordInfo = user.passwordInfo
+
+    val emailRegex = Play.configuration(app).getString("userEmailRegex").getOrElse(".*")
+    if (!user.email.exists(_.matches(emailRegex))) {
+      throw ForbiddenEx(s"email ${user.email.getOrElse("none")} doesn't match mask $emailRegex")
+    }
 
     val appUser = User(
       id = 0,

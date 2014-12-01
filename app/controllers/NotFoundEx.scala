@@ -1,7 +1,15 @@
 package controllers
 
-case class NotFoundEx(message: String) extends RuntimeException(message)
+import play.api.UsefulException
 
-case class BadRequestEx(message: String) extends RuntimeException(message)
+class BaseUserEx(message: String) extends UsefulException(message) {
+  title = message
+  id = "#"
+  description = message
+}
 
-case class ForbiddenEx(message: String) extends RuntimeException(message)
+case class NotFoundEx(message: String) extends BaseUserEx(message)
+
+case class BadRequestEx(message: String) extends BaseUserEx(message)
+
+case class ForbiddenEx(message: String) extends BaseUserEx(message)

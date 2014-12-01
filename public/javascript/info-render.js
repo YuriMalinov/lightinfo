@@ -96,6 +96,8 @@ function renderInfo(info, directHighlight) {
     var value = marked(info, {renderer: renderer});
     value = cleanupHeaders(0, value);
 
+    value = value.replace(/\{\{#widget:Visi\|id=(\d+)\}\}/g, '<script type="text/javascript" src="http://j.tourmanager.ru/visiwiki/export/$1/"></script>');
+
     return value;
 }
 
