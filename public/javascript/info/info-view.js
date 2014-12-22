@@ -15,16 +15,20 @@ $(function() {
             var stacked = currentLevel == 0 ? ' nav-stacked' : '';
             levelStack.push(currentLevel);
             currentLevel = level;
-            nav += '<ul class="nav' + stacked + '">';
+            nav += '\n\t<ul class="nav' + stacked + '">';
         } else if (level == currentLevel) {
-            nav += '</li>';
+            nav += '</li>\n';
         } else {
             while (1) {
-                nav += '</li>';
-                currentLevel = levelStack.pop();
-                if (currentLevel > level) {
-                    nav += '</ul>';
-                } else {
+                var prevLevel = levelStack.pop();
+
+                while (currentLevel-- > prevLevel) {
+                    nav += '</li>\n';
+                    nav += '\t</ul>\n';
+                }
+
+                if (currentLevel <= level) {
+                    nav += '</li>\n';
                     levelStack.push(currentLevel);
                     currentLevel = level;
                     break;
