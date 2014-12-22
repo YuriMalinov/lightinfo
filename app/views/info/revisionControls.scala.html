@@ -5,10 +5,10 @@
         Редактировать</a>
     <a href="@{
         info.code match {
-            case Some(code) ⇒ routes.InfoController.viewInfoByCode(info.projectCode, code)
+            case Some(code) ⇒ routes.InfoController.viewInfoByCode(code, info.projectCode)
             case None ⇒ routes.InfoController.viewInfo(info.id)
         }
-    }" class=" btn btn - default btn -sm@if(action == "view") { disabled } ">Просмотр</a>
+    }" class=" btn btn-default btn -sm@if(action == "view") { disabled } ">Просмотр</a>
     <a href="@routes.InfoController.revisions(info.id)" class="btn btn-default btn-sm @if(action == " revisions") {disabled}">
         Ревизии</a>
     @if(extra != null) {
