@@ -20,23 +20,23 @@ case class InfoData(parentInfoId: Int, name: String, keywords: String, text: Str
 case class InfoRevisionData(rev: InfoRevision, user: User, parentInfo: Option[Info])
 
 object InfoController extends Controller {
-  def create(code: String = "") = editImpl(None, save = false)
+  def create(projectCode: String, code: String = "") = editImpl(projectCode, None, save = false)
 
-  def createSave() = editImpl(None, save = true)
+  def createSave(projectCode: String) = editImpl(projectCode, None, save = true)
 
-  def createSaveAjax() = editImpl(None, save = true, ajax = true)
+  def createSaveAjax(projectCode: String) = editImpl(projectCode, None, save = true, ajax = true)
 
-  def edit(id: Int) = editImpl(Some(id), save = false)
+  def edit(projectCode: String, id: Int) = editImpl(projectCode, Some(id), save = false)
 
-  def editSave(id: Int) = editImpl(Some(id), save = true)
+  def editSave(projectCode: String, id: Int) = editImpl(projectCode, Some(id), save = true)
 
-  def editSaveAjax(id: Int) = editImpl(Some(id), save = true, ajax = true)
+  def editSaveAjax(projectCode: String, id: Int) = editImpl(projectCode, Some(id), save = true, ajax = true)
 
-  private def editImpl(id: Option[Int], save: Boolean, code: String = "", ajax: Boolean = false): Action[AnyContent] = CommonAction.requireAnyUser { implicit request ⇒
+  private def editImpl(projectCode: String, id: Option[Int], save: Boolean, code: String = "", ajax: Boolean = false): Action[AnyContent] = CommonAction.requireAnyUser { implicit request ⇒
     val info = id match {
-      case Some(infoId) ⇒ AppDB.infoTable.lookup(infoId).getOrElse(throw NotFoundEx(s"Can't find info with id = $infoId"))
+      case Some(infoId) ⇒ AppDB.infoTable.lookup404(infoId)
       case None ⇒ Info(
-        projectId = request.commonData.currentProject.getOrElse(throw NotFoundEx("Current project is not set. Go to main page.")).id,
+        projectId = Project.findByCode(projectCode).id,
         None, "", "", if (code.isEmpty) None else Some(code), "", 0, isPrivate = false
       )
     }
@@ -80,7 +80,7 @@ object InfoController extends Controller {
             "id" → JsNumber(saved.id)
           )))
         } else {
-          Redirect(routes.InfoController.edit(saved.id)).flashing("Успешно сохранено" → "success")
+          Redirect(routes.InfoController.edit(projectCode, saved.id)).flashing("Успешно сохранено" → "success")
         }
       } else {
         if (ajax) {
@@ -172,11 +172,10 @@ object InfoController extends Controller {
     val project = findProjectByCode(projectCode)
     val access = Access.getInfoAccess(request.user, project.id)
     Access.require(access.view) {
-      ApplicationController.selectProjectModifySession(
-        AppDB.infoTable.where(i ⇒ i.code === code and i.projectId === project.id).singleOption match {
-          case Some(info) ⇒ viewInfoImpl(info)
-          case None ⇒ Ok(views.html.info.infoNotFound(code))
-        }, project.id)
+      AppDB.infoTable.where(i ⇒ i.code === code and i.projectId === project.id).singleOption match {
+        case Some(info) ⇒ viewInfoImpl(info)
+        case None ⇒ Ok(views.html.info.infoNotFound(code))
+      }
     }
   }
 
@@ -237,7 +236,7 @@ object InfoController extends Controller {
         AppDB.infoTable.update(info)
         AppDB.infoRevisionTable.insert(info.makeRevision(request.user.get.id))
 
-        Redirect(routes.InfoController.edit(revision.infoId))
+        Redirect(routes.InfoController.edit(info.project.single.code, revision.infoId))
       }
     }
   }

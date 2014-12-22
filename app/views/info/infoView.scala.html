@@ -15,10 +15,10 @@
     <div class="page-header">
         <h1>@info.name
             @if(access.edit) {
-                @revisionControls(info.id, "view")
+                @revisionControls(info, "view")
             }
         </h1>
-        <i class="fa fa-chevron-circle-right"></i> <a href="@routes.ApplicationController.index()">@project.name</a>
+        <i class="fa fa-chevron-circle-right"></i> <a href="@routes.ApplicationController.index(project.code)">@project.name</a>
     </div>
 
     <div class="row">

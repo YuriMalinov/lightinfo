@@ -23,7 +23,7 @@
     <div class="page-header">
         <h1>@if(info.id == 0) { Новая страничка } else {
             @info.name
-            @revisionControls(info.id, "edit")
+            @revisionControls(info, "edit")
         }</h1>
     </div>
 
@@ -45,8 +45,8 @@
 
     <div ng-app="InfoEdit" ng-controller="InfoEditController as c">
     @helper.form(
-        if(info.id != 0) routes.InfoController.editSave(info.id)
-        else routes.InfoController.createSave(), 'class → "form-horizontal", 'id → "edit-form"
+        if(info.id != 0) routes.InfoController.editSave(info.projectCode, info.id)
+        else routes.InfoController.createSave(info.projectCode), 'class → "form-horizontal", 'id → "edit-form"
     ) {
         <div class="panel panel-default">
             <div class="panel-heading">Общая информация
@@ -80,7 +80,7 @@
             <div class="form-group">
                 <div class="col-lg-10 col-lg-offset-2">
                     <button type="submit" class="btn btn-primary">Сохранить</button>
-                    <a class="btn btn-info" href="@routes.ApplicationController.index()">Назад, ко всем страницам</a>
+                    <a class="btn btn-info" href="@routes.ApplicationController.index(info.projectCode)">Назад, ко всем страницам</a>
                 </div>
             </div>
         </div>

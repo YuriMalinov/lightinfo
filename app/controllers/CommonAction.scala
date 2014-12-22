@@ -12,7 +12,9 @@ case class CommonData(projects: Seq[Project], currentProject: Option[Project])
 
 class RequestWithUser[A](val user: Option[User], request: Request[A]) extends WrappedRequest[A](request)
 
-class CommonRequest[A](val commonData: CommonData, user: Option[User], request: Request[A]) extends RequestWithUser[A](user, request)
+class CommonRequest[A](val commonData: CommonData, user: Option[User], request: Request[A]) extends RequestWithUser[A](user, request) {
+  implicit val cache = new Cache
+}
 
 object CommonRequest {
   implicit def requestToCommonRequest[A](request: Request[A]): CommonRequest[A] = {
@@ -75,10 +77,12 @@ object CommonAction extends ActionBuilder[CommonRequest] {
   }
 
   def withUser(block: RequestWithUser[AnyContent] ⇒ Result): Action[AnyContent] = Action { request ⇒
-    val user = SecureSocial.authenticatorFromRequest(request)
-      .flatMap(auth ⇒ UserService.find(auth.identityId)).asInstanceOf[Option[User]]
+    inTransaction {
+      val user = SecureSocial.authenticatorFromRequest(request)
+        .flatMap(auth ⇒ UserService.find(auth.identityId)).asInstanceOf[Option[User]]
 
-    block(new RequestWithUser[AnyContent](user, request))
+      block(new RequestWithUser[AnyContent](user, request))
+    }
   }
 
   def requireProjectAdmin(projectId: Option[Int])(block: CommonRequest[AnyContent] ⇒ Result) = requireUser(u ⇒ Access.userIsAdminOfProject(u, projectId))(block)

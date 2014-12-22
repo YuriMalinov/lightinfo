@@ -81,12 +81,14 @@ body {
 
 #sidebar-container {
     position: relative;
+    background: white;
 }
 
 #sidebar.stick {
     position: fixed;
     top: 0;
     width: 263px;
+    background: white;
 }
 
 #sidebar .nav li.active > a {

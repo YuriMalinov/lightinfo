@@ -1,7 +1,9 @@
 package models
 
+import controllers.NotFoundEx
 import org.joda.time.DateTime
-import org.squeryl.{KeyedEntity, Schema}
+import org.squeryl.annotations.Transient
+import org.squeryl.{KeyedEntityDef, Table, KeyedEntity, Schema}
 import securesocial.core._
 import securesocial.core.providers.Token
 import system.DbDef._
@@ -24,8 +26,19 @@ case class Project(var name: String, var code: String, var description: String, 
   def this() = this("", "", "", ProjectType.Public, true)
 }
 
+class SimpleModel[K, T <: KeyedEntity[K]](table: Table[T])(implicit ked: KeyedEntityDef[T,K]) {
+  def get(key: K) = table.lookup(key).getOrElse(throw NotFoundEx(s"Can't find [${table.prefixedName}] with key [$key]"))
+}
+
+object Project extends SimpleModel[Int, Project](AppDB.projectTable) {
+  def findByCode(code: String): Project = AppDB.projectTable.where(p ⇒ p.code === code).headOption.getOrElse(throw NotFoundEx(s"Can't find project with code [$code]"))
+}
+
 case class Info(var projectId: Int, var parentInfoId: Option[Int], var name: String, var keywords: String, var code: Option[String], var text: String, var childrenCount: Int = 0, var isPrivate: Boolean = false) extends Entity {
   var lastModified = DateTime.now()
+
+  @Transient
+  lazy val projectCode = if (projectId == 0) "-1" else project.single.code
 
   def this() = this(0, Some(0), "", "", Some(""), "")
 
@@ -66,6 +79,9 @@ case class InfoRevision(infoId: Int, projectId: Int, parentInfoId: Option[Int], 
   def this() = this(0, 0, Option(0), "", "", Some(""), false, "", 0)
 
   def info = AppDB.infoToRevisions.right(this)
+
+  @Transient
+  lazy val infoCached = info.single
 
   def user = AppDB.userToRevisions.right(this)
 

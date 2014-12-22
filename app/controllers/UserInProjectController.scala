@@ -1,6 +1,6 @@
 package controllers
 
-import models.{AppDB, UserInProject, UserStatus}
+import models.{Project, AppDB, UserInProject, UserStatus}
 import play.api.data.Forms._
 import play.api.mvc.Controller
 import system.DbDef._
@@ -54,12 +54,13 @@ object UserInProjectController extends Controller {
 
   def requestAccess() = CommonAction.requireAnyUser { implicit request ⇒
     CommonAction.bindPost(single("projectId" → number)) { case projectId ⇒
+      val projectCode = Project.get(projectId).code
       AppDB.userInProjectTable.where(u ⇒ u.projectId === projectId and u.userId === request.user.get.id).singleOption match {
         case Some(uip) ⇒
-          Redirect(routes.ApplicationController.index()).flashing(s"Запрос на доступ уже добавлен, состояние ${uip.userStatus.toString}" → "warning")
+          Redirect(routes.ApplicationController.index(projectCode)).flashing(s"Запрос на доступ уже добавлен, состояние ${uip.userStatus.toString}" → "warning")
         case None ⇒
           AppDB.userInProjectTable.insert(UserInProject(request.user.get.id, projectId, UserStatus.Request))
-          Redirect(routes.ApplicationController.index()).flashing("Запрос на доступ добавлен" → "success")
+          Redirect(routes.ApplicationController.index(projectCode)).flashing("Запрос на доступ добавлен" → "success")
       }
     }
   }
