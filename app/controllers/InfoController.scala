@@ -37,7 +37,9 @@ object InfoController extends Controller {
       case Some(infoId) ⇒ AppDB.infoTable.lookup404(infoId)
       case None ⇒ Info(
         projectId = Project.findByCode(projectCode).id,
-        None, "", "", if (code.isEmpty) None else Some(code), "", 0, isPrivate = false
+        None, "", "", if (code.isEmpty) None else Some(code), "", 0,
+        isPrivate = false,
+        trash = false
       )
     }
 
@@ -91,6 +93,17 @@ object InfoController extends Controller {
         } else {
           Ok(views.html.info.infoEdit(form, info, ("0" → "Нет") +: Info.findByProject(info.projectId).filter(_.id != info.id).map(i ⇒ i.id.toString → i.name)))
         }
+      }
+    }
+  }
+
+  def trash(projectCode: String, infoId: Int, trash: Boolean) = CommonAction.requireAnyUser { implicit request =>
+    Access.require(Access.getInfoAccess(infoId).edit) {
+      inTransaction {
+        val info = AppDB.infoTable.lookup404(infoId)
+        info.trash = trash
+        AppDB.infoTable.update(info)
+        Redirect(routes.ApplicationController.index(info.project.head.code))
       }
     }
   }

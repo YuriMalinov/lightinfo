@@ -1,4 +1,4 @@
-@(project: Project, infoDisplays: Iterable[InfoDisplay], access: InfoAccess)(implicit request: CommonRequest[_])
+@(project: Project, infoDisplays: Iterable[InfoDisplay], access: InfoAccess, showTrash: Boolean)(implicit request: CommonRequest[_])
 
 @searchPanel() = {
     <form class="navbar-form navbar-left">
@@ -18,15 +18,22 @@
                 <input type="submit" value="Запросить доступ к проекту" class="btn btn-info">
             </form>
         }
+        @if(access.viewInternal) {
+            <div class="pull-right">
+                <a href="@routes.ApplicationController.index(project.code)@if(!showTrash) {?trash=1}"
+                    class="btn @if(showTrash) { btn-success } else { btn-default }"><i class="fa fa-trash"></i></a>
+            </div>
+        }
     </h1>
     <div class="list-group">
     @infoDisplays.map { info =>
         <a href="@(
                 if(info.code.isDefined && !project.code.isEmpty) routes.InfoController.viewInfoByCode(info.code.get, project.code)
                 else routes.InfoController.viewInfo(info.id))"
-        class="list-group-item" style="padding-left : @(10 + 10 * info.level + "px")" data-keywords="@info.keywords">
+        class="list-group-item @if(info.trash) { disabled }" style="padding-left : @(10 + 20 * info.level + "px")" data-keywords="@info.keywords">
             @info.name
-            <span class="badge badge-info">@info.childrenCount</span>
+            @*<span class="badge badge-info">@info.childrenCount</span>*@
+            <span class="label pull-right @if(info.lineCount > 0) { label-success } else { label-default }">@info.lineCount</span>
         </a>
     }
     </div>

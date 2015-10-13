@@ -28,6 +28,7 @@ POST        /p/:projectCode/info/create-save-ajax        controllers.InfoControl
 GET         /p/:projectCode/info/edit                    controllers.InfoController.edit(projectCode: String, id: Int)
 POST        /p/:projectCode/info/edit-save               controllers.InfoController.editSave(projectCode: String, id: Int)
 POST        /p/:projectCode/info/edit-save-ajax          controllers.InfoController.editSaveAjax(projectCode: String, id: Int)
+GET         /p/:projectCode/info/trash                   controllers.InfoController.trash(projectCode: String, id: Int, trash: Boolean)
 
 POST        /info/upload-image                           controllers.InfoController.uploadImage(infoId: Int)
 GET         /image/:infoId/:imageId                      controllers.InfoController.getImage(infoId: Int, imageId: Long)

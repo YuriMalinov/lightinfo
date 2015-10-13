@@ -34,7 +34,7 @@ object Project extends SimpleModel[Int, Project](AppDB.projectTable) {
   def findByCode(code: String): Project = AppDB.projectTable.where(p ⇒ p.code === code).headOption.getOrElse(throw NotFoundEx(s"Can't find project with code [$code]"))
 }
 
-case class Info(var projectId: Int, var parentInfoId: Option[Int], var name: String, var keywords: String, var code: Option[String], var text: String, var childrenCount: Int = 0, var isPrivate: Boolean = false) extends Entity {
+case class Info(var projectId: Int, var parentInfoId: Option[Int], var name: String, var keywords: String, var code: Option[String], var text: String, var childrenCount: Int = 0, var isPrivate: Boolean = false, var trash: Boolean = false) extends Entity {
   var lastModified = DateTime.now()
 
   @Transient
