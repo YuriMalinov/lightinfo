@@ -6,7 +6,7 @@ import system.DbDef._
 
 import scala.collection.mutable.ArrayBuffer
 
-case class InfoDisplay(id: Int, name: String, lineCount: Int, code: Option[String], keywords: String, level: Int, childrenCount: Int, trash: Boolean)
+case class InfoDisplay(id: Int, name: String, lineCount: Int, code: Option[String], keywords: String, level: Int, childrenCount: Int, trash: Boolean, isPrivate: Boolean)
 
 object ApplicationController extends Controller {
   def simpleIndex = CommonAction { implicit request ⇒
@@ -33,7 +33,7 @@ object ApplicationController extends Controller {
       val children = data.getOrElse(info.id, Nil)
       val subItems = children.flatMap(i ⇒ if (noRecursion.contains(info.id)) Nil else subList(i, level + 1, noRecursion + info.id))
 
-      List(InfoDisplay(info.id, info.name, info.text.count(_ == '\n'), info.code, info.keywords, level, subItems.size, info.trash)) ++ subItems
+      List(InfoDisplay(info.id, info.name, info.text.count(_ == '\n'), info.code, info.keywords, level, subItems.size, info.trash, info.isPrivate)) ++ subItems
     }
 
     val infoDisplays = data.getOrElse(0, Nil).flatMap(i ⇒ subList(i, 0, Set()))

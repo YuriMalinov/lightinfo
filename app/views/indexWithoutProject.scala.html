@@ -12,7 +12,12 @@
         <h1 class="page-header">Выберите проект</h1>
         <table class="table table-hover table-striped">
         @request.commonData.projects.map { project =>
-            <tr><td><a href="@routes.ApplicationController.index(project.code)">@project.name</a></td></tr>
+            <tr>
+                <td>
+                    <a href="@routes.ApplicationController.index(project.code)">@project.name</a>
+                    @if(ProjectType.isClosed(project.projectType)) { <i class="fa fa-lock"></i> }
+                </td>
+            </tr>
         }
         </table>
     }

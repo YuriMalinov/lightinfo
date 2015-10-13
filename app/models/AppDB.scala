@@ -18,6 +18,8 @@ object ProjectType extends Enumeration {
   val Public = Value(1, "Open")
   val Protected = Value(2, "Protected")
   val Private = Value(3, "Private")
+
+  def isClosed(v: Value) = v == this.Protected || v == this.Private
 }
 
 object ProjectTypeMapping extends EnumerationMapping(ProjectType)

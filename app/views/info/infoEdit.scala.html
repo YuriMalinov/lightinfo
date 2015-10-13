@@ -25,6 +25,7 @@
             @info.name
             @revisionControls(info, "edit")
         }</h1>
+        <i class="fa fa-chevron-circle-right"></i> <a href="@routes.ApplicationController.index(info.project.single.code)">@info.project.single.name</a>
     </div>
 
     <div id="success-message" class="alert alert-success">
@@ -40,6 +41,7 @@
     window.angularData = { } ;
     window.angularData.info = @Html(Json.toJson(info).toString());
     window.angularData.infoId = @Html(info.id.toString);
+    window.angularData.projectCode = @Html(Json.toJson(info.projectCode).toString());
     window.angularData.hasErrors = @Html(form.hasErrors.toString);
     </script>
 

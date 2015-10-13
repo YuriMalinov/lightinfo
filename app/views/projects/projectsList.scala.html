@@ -28,7 +28,9 @@
             @projectsPage.list.map { project =>
                 <tr>
                     <td>@project.id</td>
-                    <td><a href="@routes.ProjectsController.edit(project.id)">@project.name</a></td>
+                    <td><a href="@routes.ProjectsController.edit(project.id)">@project.name</a>
+                        @if(ProjectType.isClosed(project.projectType)) { <i class="fa fa-lock"></i> }
+                    </td>
                     <td>@project.code</td>
                     <td>@project.description</td>
                     <td>

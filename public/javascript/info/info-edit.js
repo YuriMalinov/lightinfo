@@ -5,6 +5,7 @@ $(function ($) {
     var $preview = $('#preview');
     //noinspection JSUnresolvedVariable
     var infoId = window.angularData.infoId;
+    var projectCode = window.angularData.projectCode;
 
     updatePreview();
 
@@ -34,7 +35,7 @@ $(function ($) {
         if (e.ctrlKey && !e.shiftKey && !e.altKey && e.keyCode == 83) {
             // Save
             $.ajax({
-                url: infoId == 0 ? "/info/create-save-ajax" : ("/info/edit-save-ajax?id=" + infoId),
+                url: infoId == 0 ? "/p/" + projectCode + "/info/create-save-ajax" : ("/p/" + projectCode + "/info/edit-save-ajax?id=" + infoId),
                 type: "post",
                 data: $('#edit-form').serializeArray()
             }).done(function (result) {

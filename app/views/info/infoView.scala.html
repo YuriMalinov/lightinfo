@@ -14,6 +14,8 @@
     <script type="text/javascript" src="@routes.Assets.at("javascript/info/info-view.js")"></script>
     <div class="page-header">
         <h1>@info.name
+            @if(info.isPrivate) { <i class="fa fa-lock"></i> }
+
             @if(access.edit) {
                 @revisionControls(info, "view")
             }

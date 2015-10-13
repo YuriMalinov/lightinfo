@@ -94,3 +94,8 @@ body {
 #sidebar .nav li.active > a {
     border-left: 2px solid #007196;
 }
+
+/* index */
+.list-group-large {
+    font-size: 16px;
+}
