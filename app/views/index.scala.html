@@ -1,14 +1,8 @@
 @(project: Project, infoDisplays: Iterable[InfoDisplay], access: InfoAccess, showTrash: Boolean)(implicit request: CommonRequest[_])
 
-@searchPanel() = {
-    <form class="navbar-form navbar-left">
-        <input type="text" class="form-control col-lg-8" placeholder="Search">
-    </form>
-}
-
-@main(searchPanel = searchPanel()) {
+@main() {
     <script src="@routes.Assets.at("javascript/index.js")" type="text/javascript"></script>
-    <h1 class="page-header">@project.name
+    <h1 class="page-header">@project.name <input type="text" class="form-control search-box" placeholder="Type to search...">
         @if(access.edit) {
             <a href="@routes.InfoController.create(project.code)" class="btn btn-default">Добавить</a>
         }
@@ -30,7 +24,7 @@
         <a href="@(
                 if(info.code.isDefined && !project.code.isEmpty) routes.InfoController.viewInfoByCode(info.code.get, project.code)
                 else routes.InfoController.viewInfo(info.id))"
-        class="list-group-item @if(info.trash) { disabled }" style="padding-left : @(10 + 20 * info.level + "px")" data-keywords="@info.keywords">
+        class="page-item list-group-item @if(info.trash) { disabled }" style="padding-left : @(10 + 20 * info.level + "px")" data-keywords="@info.keywords" data-name="@info.name">
             @info.name
             @*<span class="badge badge-info">@info.childrenCount</span>*@
             @if(info.isPrivate) { <i class="fa fa-lock"></i> }

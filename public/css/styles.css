@@ -99,3 +99,9 @@ body {
 .list-group-large {
     font-size: 16px;
 }
+
+.search-box {
+    display: inline-block;
+    width: 200px;
+    vertical-align: middle;
+}
