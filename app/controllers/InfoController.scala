@@ -49,7 +49,8 @@ object InfoController extends Controller {
         "name" → nonEmptyText,
         "keywords" → text,
         "text" → text,
-        "code" → optional(text verifying("Код должен быть уникальным", code ⇒ AppDB.infoTable.where(i ⇒ i.projectId === info.projectId and i.code === code and i.id <> id).isEmpty)),
+        "code" → optional(text verifying("Код должен быть уникальным", code ⇒
+          AppDB.infoTable.where(i ⇒ i.projectId === info.projectId and i.code === code and i.id <> id.?).isEmpty)),
         "isPrivate" → boolean
       )(InfoData.apply)(InfoData.unapply)
     )
