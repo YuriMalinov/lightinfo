@@ -17,6 +17,8 @@ $(function ($) {
         timer = setTimeout(updatePreview, 500);
     });
 
+    $('#parentInfoId').select2();
+
     // Ugly resize handling
     var textareaHeight = $text.height();
     $text.mouseup(function () {

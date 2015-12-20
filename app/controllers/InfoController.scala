@@ -92,7 +92,9 @@ object InfoController extends Controller {
             "errors" → form.errorsAsJson
           )))
         } else {
-          Ok(views.html.info.infoEdit(form, info, ("0" → "Нет") +: Info.findByProject(info.projectId).filter(_.id != info.id).map(i ⇒ i.id.toString → i.name)))
+          val infos = Info.sortByParent(Info.findByProject(info.projectId).filter(i ⇒ i.id != info.id && !i.trash))
+          val options = infos.map(i ⇒ i.id.toString → ((if (i.level > 0) "-" * i.level + " " else "") + i.name))
+          Ok(views.html.info.infoEdit(form, info, ("0" → "Нет") +: options))
         }
       }
     }

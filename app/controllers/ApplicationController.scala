@@ -6,7 +6,6 @@ import system.DbDef._
 
 import scala.collection.mutable.ArrayBuffer
 
-case class InfoDisplay(id: Int, name: String, lineCount: Int, code: Option[String], keywords: String, level: Int, childrenCount: Int, trash: Boolean, isPrivate: Boolean)
 
 object ApplicationController extends Controller {
   def simpleIndex = CommonAction { implicit request ⇒
@@ -23,20 +22,13 @@ object ApplicationController extends Controller {
         where(info.projectId === project.id
           and (info.isPrivate === false).inhibitWhen(access.viewInternal)
           and (info.trash === false).inhibitWhen(access.viewInternal && trash)
-        ) select info orderBy(info.parentInfoId, info.name))
-        .groupBy(_.parentInfoId.getOrElse(0))
+        ) select info orderBy(info.parentInfoId, info.name)).toSeq
     } else {
-      Map[Int, Iterable[Info]]()
+      Seq[Info]()
     }
 
-    def subList(info: Info, level: Int, noRecursion: Set[Int]): List[InfoDisplay] = {
-      val children = data.getOrElse(info.id, Nil)
-      val subItems = children.flatMap(i ⇒ if (noRecursion.contains(info.id)) Nil else subList(i, level + 1, noRecursion + info.id))
+    val infoDisplays = Info.sortByParent(data)
 
-      List(InfoDisplay(info.id, info.name, info.text.count(_ == '\n'), info.code, info.keywords, level, subItems.size, info.trash, info.isPrivate)) ++ subItems
-    }
-
-    val infoDisplays = data.getOrElse(0, Nil).flatMap(i ⇒ subList(i, 0, Set()))
     Ok(views.html.index(project, infoDisplays, access, trash))
   }
 

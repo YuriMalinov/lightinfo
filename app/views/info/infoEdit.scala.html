@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="@routes.Assets.at("css/info/info-edit.css")">
     <link rel="stylesheet" href="@routes.Assets.at("magnific-popup/magnific-popup.css")">
     <link rel="stylesheet" href="@routes.Assets.at("highlightjs/styles/idea.css")">
+    <link rel="stylesheet" href="@routes.Assets.at("libs/select2/css/select2.min.css")">
 }
 
 @main(fluid = true, head = head()) {
@@ -20,6 +21,7 @@
     <script type="text/javascript" src="@routes.Assets.at("magnific-popup/jquery.magnific-popup.min.js")"></script>
     <script type="text/javascript" src="@routes.Assets.at("javascript/info-render.js")"></script>
     <script type="text/javascript" src="@routes.Assets.at("javascript/info/info-edit.js")"></script>
+    <script type="text/javascript" src="@routes.Assets.at("libs/select2/js/select2.min.js")"></script>
     <div class="page-header">
         <h1>@if(info.id == 0) { Новая страничка } else {
             @info.name

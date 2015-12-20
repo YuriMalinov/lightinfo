@@ -3,7 +3,7 @@ package models
 import controllers.NotFoundEx
 import org.joda.time.DateTime
 import org.squeryl.annotations.Transient
-import org.squeryl.{KeyedEntityDef, Table, KeyedEntity, Schema}
+import org.squeryl.{KeyedEntity, KeyedEntityDef, Schema, Table}
 import securesocial.core._
 import securesocial.core.providers.Token
 import system.DbDef._
@@ -69,8 +69,24 @@ case class Info(var projectId: Int, var parentInfoId: Option[Int], var name: Str
   }
 }
 
+case class InfoDisplay(id: Int, name: String, lineCount: Int, code: Option[String], keywords: String, level: Int, childrenCount: Int, trash: Boolean, isPrivate: Boolean)
+
 object Info {
   def findByProject(projectId: Int) = from(AppDB.infoTable)(i ⇒ where(i.projectId === projectId) select i orderBy i.name).toSeq
+
+
+  def sortByParent(infos: Seq[Info]): Seq[InfoDisplay] = {
+    val data = infos.groupBy(_.parentInfoId.getOrElse(0))
+
+    def subList(info: Info, level: Int, noRecursion: Set[Int]): List[InfoDisplay] = {
+      val children = data.getOrElse(info.id, Nil)
+      val subItems = children.flatMap(i ⇒ if (noRecursion.contains(info.id)) Nil else subList(i, level + 1, noRecursion + info.id))
+
+      List(InfoDisplay(info.id, info.name, info.text.count(_ == '\n'), info.code, info.keywords, level, subItems.size, info.trash, info.isPrivate)) ++ subItems
+    }
+
+    data.getOrElse(0, Nil).flatMap(i ⇒ subList(i, 0, Set()))
+  }
 }
 
 case class InfoImage(infoId: Int, data: Array[Byte], contentType: String) extends KeyedEntity[Long] {
