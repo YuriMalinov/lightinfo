@@ -24,7 +24,8 @@
         <a href="@(
                 if(info.code.isDefined && !project.code.isEmpty) routes.InfoController.viewInfoByCode(info.code.get, project.code)
                 else routes.InfoController.viewInfo(info.id))"
-        class="page-item list-group-item @if(info.trash) { disabled }" style="padding-left : @(10 + 20 * info.level + "px")" data-keywords="@info.keywords" data-name="@info.name">
+        class="page-item list-group-item @if(info.trash) { disabled }" style="padding-left : @(10 + 20 * info.level + "px")"
+        data-keywords="@info.keywords" data-name="@info.name" data-id="@info.id">
             @info.name
             @*<span class="badge badge-info">@info.childrenCount</span>*@
             @if(info.isPrivate) { <i class="fa fa-lock"></i> }
